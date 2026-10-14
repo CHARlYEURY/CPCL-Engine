@@ -2,7 +2,7 @@
 #include <vector>
 #include <string>
 
-constexpr uint32_t PackColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
+constexpr uint32_t setRGB(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
 {
 	return (uint32_t(a) << 24) | (uint32_t(r) << 16) | (uint32_t(g) << 8) | uint32_t(b);
 }

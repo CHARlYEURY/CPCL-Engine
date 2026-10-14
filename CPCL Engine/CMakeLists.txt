@@ -26,4 +26,3 @@ add_custom_command(TARGET App POST_BUILD
         ${SDL3_DIR}/lib/x64/SDL3.dll
         $<TARGET_FILE_DIR:App>
 )
-
