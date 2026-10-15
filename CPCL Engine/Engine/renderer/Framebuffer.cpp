@@ -1,11 +1,12 @@
 #include "Framebuffer.h"
 #include <algorithm>
 
+
 #include <fstream>
 
 FrameBuffer::FrameBuffer(int width, int height) : size_width(width), size_height(height), pixels(size_t(width)* height, 0)
 {
-
+    
 }
 
 void FrameBuffer::Clear(uint32_t color)

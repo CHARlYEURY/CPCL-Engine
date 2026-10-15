@@ -4,12 +4,18 @@ project(CPCLEngine LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(SDL3_DIR    ${CMAKE_SOURCE_DIR}/ThirdParty/SDL2)
+set(SDL3_DIR    ${CMAKE_SOURCE_DIR}/ThirdParty/SDL3)
+
+# ---------- LibMath (header-only) ----------
+add_library(LibMath INTERFACE)
+target_include_directories(LibMath INTERFACE ${CMAKE_SOURCE_DIR}/ThirdParty/LibMath)
 
 # ---------- Engine (bibliothèque) ----------
 file(GLOB_RECURSE ENGINE_SOURCES CONFIGURE_DEPENDS Engine/*.cpp)
 add_library(Engine STATIC ${ENGINE_SOURCES})
 target_include_directories(Engine PUBLIC Engine)
+target_link_libraries(Engine PUBLIC LibMath)
+
 
 # ---------- App (exécutable) ----------
 file(GLOB_RECURSE APP_SOURCES CONFIGURE_DEPENDS App/*.cpp)
@@ -26,4 +32,3 @@ add_custom_command(TARGET App POST_BUILD
         ${SDL3_DIR}/lib/x64/SDL3.dll
         $<TARGET_FILE_DIR:App>
 )
-
