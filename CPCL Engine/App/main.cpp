@@ -127,24 +127,19 @@ int main() {
         // --- Rendu CPU ---
         fb.Clear(setRGB(0, 0, 0, 0));
 
-        //fb.SetPixel(160, 100, PackColor(255, 0, 0));
+        draw_triangle(150, 480, setRGB(255, 0, 0),
+            400, 80, setRGB(0, 255, 0),
+            650, 480, setRGB(0, 0, 255), rtz, fb);
 
-        const int cx = WIDTH / 2;
-        const int cy = HEIGHT / 2;
-        const int spokes = 256;
-        const int radius = (HEIGHT / 2) - 20;
-        const double TWO_PI = 6.2831853071795864;
+        // 2) Small flat-shaded triangle (same colour x3).
+        draw_triangle(60, 60, setRGB(240, 240, 240),
+            200, 60, setRGB(240, 240, 240),
+            130, 170, setRGB(240, 240, 240),rtz, fb);
 
-        for (int i = 0; i < spokes; i++) {
-            double t = (double)i / (double)spokes * TWO_PI;
-            double ct = cos(t);
-            double st = sin(t);
-            int ex = cx + (int)(radius * ct);
-            int ey = cy + (int)(radius * st);
-            uint8_t r = (uint8_t)(127.0 + 127.0 * ct);
-            uint8_t g = (uint8_t)(127.0 + 127.0 * st);
-            rtz.draw_line(cx, cy, ex, ey, setRGB(r, g, 200));
-        }
+        // 3) White wireframe over the big triangle's edges.
+        rtz.draw_line(150, 480, 400, 80, setRGB(255, 255, 255));
+        rtz.draw_line(400, 80, 650, 480, setRGB(255, 255, 255));
+        rtz.draw_line(650, 480, 150, 480, setRGB(255, 255, 255));
 
         // --- Affichage ---
         SDL_UpdateTexture(texture, nullptr, fb.Data(), WIDTH * sizeof(uint32_t));
