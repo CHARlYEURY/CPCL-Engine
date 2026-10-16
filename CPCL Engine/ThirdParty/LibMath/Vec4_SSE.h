@@ -48,6 +48,7 @@ namespace Maths
 		float DistanceSquared(const Vec4_SSE& other) const;
 		float Distance(const Vec4_SSE& other) const;
 		float Angle(const Vec4_SSE& other) const; 
+		Vec4_SSE FromPoint(const Vec3_SSE& point) const;
 
 		template <typename T>
 		static Vec4_SSE Lerp(const Vec4_SSE& a, const Vec4_SSE& b, T t);
@@ -308,5 +309,11 @@ namespace Maths
 	inline const Vec4_SSE Vec4_SSE::UnitZ{ _mm_setr_ps(0, 0, 1, 0) };
 	inline const Vec4_SSE Vec4_SSE::UnitW{ _mm_setr_ps(0, 0, 0, 1) };
 
+
+
+	inline Vec4_SSE Vec4_SSE::FromPoint(const Vec3_SSE& point) const
+	{
+		return Vec4_SSE(_mm_blend_ps(point.reg, _mm_set1_ps(1.0f), 0x8)); // lane 3 = 1.0f
+	}
 
 }

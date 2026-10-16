@@ -46,11 +46,41 @@ namespace Maths
 		static Matrix4x4_SSE RotationZ(float radians);
 		static Matrix4x4_SSE Translation(const Vec3_SSE& offset);
 
+		static Matrix4x4_SSE Perspective(float fovYRadians, float aspect, float zNear, float zFar);
+		static Matrix4x4_SSE LookAt(const Vec3_SSE& eye, const Vec3_SSE& target, const Vec3_SSE& up);
+
 		Vec3_SSE TransformPoint(const Vec3_SSE& point) const; // Affine only, w = 1.
 		Vec3_SSE TransformDirection(const Vec3_SSE& direction) const; // Affine only, w = 0.
+		
 
 		
 	};
+
+
+	namespace Detail
+	{
+		// Produit vectoriel xyz (la lane w du résultat est 0 si a.w = b.w = 0)
+		inline __m128 Cross3(__m128 a, __m128 b)
+		{
+			const __m128 a_yzx = _mm_shuffle_ps(a, a, _MM_SHUFFLE(3, 0, 2, 1));
+			const __m128 b_yzx = _mm_shuffle_ps(b, b, _MM_SHUFFLE(3, 0, 2, 1));
+			const __m128 c = _mm_sub_ps(_mm_mul_ps(a, b_yzx), _mm_mul_ps(a_yzx, b));
+			return _mm_shuffle_ps(c, c, _MM_SHUFFLE(3, 0, 2, 1));
+		}
+
+		// Produit scalaire xyz, diffusé dans les 4 lanes
+		inline __m128 Dot3(__m128 a, __m128 b)
+		{
+			return _mm_dp_ps(a, b, 0x7F);
+		}
+
+		inline __m128 Normalize3(__m128 v)
+		{
+			const __m128 len = _mm_sqrt_ps(Dot3(v, v));
+			return _mm_div_ps(v, len);
+		}
+	}
+
 
 	inline Matrix4x4_SSE::Matrix4x4_SSE()
 	{
@@ -667,5 +697,56 @@ namespace Maths
 		const __m128 rz = _mm_dp_ps(rows[2], d, 0xF4);
 
 		return Vec3_SSE(_mm_or_ps(_mm_or_ps(rx, ry), rz));
+	}
+
+
+	inline Matrix4x4_SSE Matrix4x4_SSE::Perspective(float fovYRadians, float aspect,
+		float zNear, float zFar)
+	{
+		assert(aspect > 0.0f && zNear > 0.0f && zFar > zNear);
+
+		const float yScale = 1.0f / std::tan(fovYRadians * 0.5f);
+		const float xScale = yScale / aspect;
+		const float inv = 1.0f / (zNear - zFar);
+		const float zMapA = (zFar + zNear) * inv;
+		const float zMapB = 2.0f * zFar * zNear * inv;
+
+		Matrix4x4_SSE result;
+		result.rows[0] = _mm_setr_ps(xScale, 0.0f, 0.0f, 0.0f);
+		result.rows[1] = _mm_setr_ps(0.0f, yScale, 0.0f, 0.0f);
+		result.rows[2] = _mm_setr_ps(0.0f, 0.0f, zMapA, zMapB);
+		result.rows[3] = _mm_setr_ps(0.0f, 0.0f, -1.0f, 0.0f);   // w = -z
+		return result;
+	}
+
+	inline Matrix4x4_SSE Matrix4x4_SSE::LookAt(const Vec3_SSE& eye, const Vec3_SSE& target,
+		const Vec3_SSE& up)
+	{
+		using namespace Detail;
+
+		const __m128 forward = Normalize3(_mm_sub_ps(eye.reg, target.reg));
+
+		__m128 right = Cross3(up.reg, forward);
+
+		// Cas limite : up parallèle à forward -> cross nul -> NaN après normalisation.
+		// On retombe sur l'axe X (valable tant que forward n'est pas lui aussi sur X).
+		if (_mm_cvtss_f32(Dot3(right, right)) < 1e-12f)
+			right = Cross3(_mm_setr_ps(1.0f, 0.0f, 0.0f, 0.0f), forward);
+
+		right = Normalize3(right);
+		const __m128 camUp = Cross3(forward, right);   // déjà unitaire (right ⟂ forward)
+
+		// Lane w de chaque ligne = -dot(axe, eye), broadcast puis blend dans la lane 3
+		const __m128 zero = _mm_setzero_ps();
+		const __m128 tx = _mm_sub_ps(zero, Dot3(right, eye.reg));
+		const __m128 ty = _mm_sub_ps(zero, Dot3(camUp, eye.reg));
+		const __m128 tz = _mm_sub_ps(zero, Dot3(forward, eye.reg));
+
+		Matrix4x4_SSE result;
+		result.rows[0] = _mm_blend_ps(right, tx, 0x8);
+		result.rows[1] = _mm_blend_ps(camUp, ty, 0x8);
+		result.rows[2] = _mm_blend_ps(forward, tz, 0x8);
+		result.rows[3] = _mm_setr_ps(0.0f, 0.0f, 0.0f, 1.0f);
+		return result;
 	}
 }
