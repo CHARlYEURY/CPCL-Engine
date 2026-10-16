@@ -149,9 +149,9 @@ int main() {
 
 
     Mesh mesh;
-    if (!mesh_load("Assets/spot.obj", &mesh)) return 1;
+    if (!mesh_load("Assets/spot.obj", mesh)) return 1;
     printf("loaded spot.obj: %d vertices, %d faces\n",
-        mesh.vert_count, mesh.face_count);
+        mesh.vertCount(), mesh.faceCount());
 
 
 
@@ -176,11 +176,11 @@ int main() {
 
 
 
-      // Per-vertex scratch buffers (projected screen coords + depth).
-    int* screen_x = (int*)malloc(mesh.vert_count * sizeof(int));
-    int* screen_y = (int*)malloc(mesh.vert_count * sizeof(int));
-    float* cam_depth = (float*)malloc(mesh.vert_count * sizeof(float));
-    bool* visible = (bool*)malloc(mesh.vert_count * sizeof(bool));
+    const int vertCount = mesh.vertCount();
+    std::vector<int>   screen_x(vertCount);
+    std::vector<int>   screen_y(vertCount);
+    std::vector<float> cam_depth(vertCount);
+    std::vector<char>  visible(vertCount);
 
     /////////////////////// RUN /////////////////////
 
@@ -214,13 +214,13 @@ int main() {
         // resulting screen pixel of each. `visible[i]` says whether
         // corner i ended up in front of the camera.
         float dmin = 1e30f, dmax = -1e30f;
-        for (int i = 0; i < mesh.vert_count; i++) {
+        for (int i = 0; i < mesh.vertCount(); i++) {
             Maths::Vec4_SSE clip = mvp * vert.FromPoint(mesh.verts[i]);
             if (clip.reg.m128_f32[3] <= 0.0001f) { visible[i] = false; continue; }
             float ndc_x = clip.reg.m128_f32[0] / clip.reg.m128_f32[3];
             float ndc_y = clip.reg.m128_f32[1] / clip.reg.m128_f32[3];
             screen_x[i] = (int)((ndc_x + 1.0f) * 0.5f * WIDTH);
-            screen_y[i] = (int)((1.0f - (ndc_y + 1.0f) * 0.5f) * HEIGHT);
+            screen_y[i] = (int)(((1.0f - ndc_y) * 0.5f) * HEIGHT);
             cam_depth[i] = clip.reg.m128_f32[3];                       // camera-space depth (bigger = farther)
             visible[i] = true;
             if (clip.reg.m128_f32[3] < dmin) dmin = clip.reg.m128_f32[3];
@@ -231,7 +231,7 @@ int main() {
         fb.Clear(setRGB(16, 16, 24));
 
 
-        for (int fidx = 0; fidx < mesh.face_count; fidx++) {
+        for (int fidx = 0; fidx < mesh.faceCount(); fidx++) {
             int a = mesh.faces[fidx * 3 + 0];
             int b = mesh.faces[fidx * 3 + 1];
             int c = mesh.faces[fidx * 3 + 2];
@@ -276,8 +276,7 @@ int main() {
 
     }
 
-    free(screen_x); free(screen_y); free(cam_depth); free(visible);
-    mesh_free(&mesh);
+    
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

@@ -19,87 +19,78 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+
  struct Mesh {
-    Maths::Vec3_SSE * verts;     int vert_count;
-    int* faces;     int face_count;   // 3 ints per face: v0, v1, v2 (0-based)
-}; 
+    std::vector<Maths::Vec3_SSE> verts;
+    std::vector<int> faces;    // 3 ints per face: v0, v1, v2 (0-based)
+
+    int vertCount() const { return (int)verts.size(); }
+    int faceCount() const { return (int)faces.size() / 3; }
+ }; 
+
+ 
 
 // Read the leading integer of a face token like "12" or "12/3/4".
 // Returns the integer and advances *p past the token.
-static int obj__read_index(const char** p) {
-    // skip spaces
-    while (**p == ' ' || **p == '\t') (*p)++;
-    int sign = 1;
-    if (**p == '-') { sign = -1; (*p)++; }
+inline bool ObjReadIndex(const char*& p, int vertCount, int& out) {
+    while (*p == ' ' || *p == '\t') ++p;
+
+    bool negative = false;
+    if (*p == '-') { negative = true; ++p; }
+    if (*p < '0' || *p > '9') return false;      // plus de token : on s'arrête
+
     int value = 0;
-    while (**p >= '0' && **p <= '9') { value = value * 10 + (**p - '0'); (*p)++; }
-    // skip the "/texture/normal" part, if any, up to the next space
-    while (**p && **p != ' ' && **p != '\t' && **p != '\n' && **p != '\r') (*p)++;
-    return sign * value;
+    while (*p >= '0' && *p <= '9') { value = value * 10 + (*p - '0'); ++p; }
+
+    while (*p && *p != ' ' && *p != '\t' && *p != '\n' && *p != '\r') ++p;
+
+    out = negative ? vertCount - value : value - 1;   // résultat 0-based
+    return true;
 }
 
 // Load a mesh from an OBJ file. Returns 1 on success, 0 on failure.
-static int mesh_load(const char* path, Mesh* out) {
+inline bool mesh_load(const char* path, Mesh& out) {
     FILE* f = fopen(path, "r");
-    if (!f) { fprintf(stderr, "could not open %s\n", path); return 0; }
+    if (!f) { fprintf(stderr, "could not open %s\n", path); return false; }
 
-    //////// INIT ////////
-    // Grow-able arrays. Start small, double when full.
-    int vcap = 1024, fcap = 1024;
-    out->verts = (Maths::Vec3_SSE*)malloc(vcap * sizeof(Maths::Vec3_SSE));
-    out->faces = (int*)malloc(fcap * 3 * sizeof(int));
-    out->vert_count = 0;
-    out->face_count = 0;
-    //////// INIT ////////
+    out.verts.clear();
+    out.faces.clear();
+
 
     char line[256];
     while (fgets(line, sizeof line, f)) {
 
-
-        //////// sommet /////////
-        if (line[0] == 'v' && line[1] == ' ') {
-            // a vertex: read three floats
-            Maths::Vec3_SSE v;
-            if (sscanf(line + 2, "%f %f %f", &v.reg.m128_f32[0], &v.reg.m128_f32[1], &v.reg.m128_f32[2]) == 3) {
-                if (out->vert_count == vcap) {
-                    vcap *= 2;
-                    out->verts = (Maths::Vec3_SSE*)realloc(out->verts, vcap * sizeof(Maths::Vec3_SSE));
-                }
-                out->verts[out->vert_count++] = v;
+        if (line[0] == 'v' && line[1] == ' ')
+        {
+            float x, y, z;
+            if (sscanf(line + 2, "%f %f %f", &x, &y, &z) == 3)
+            {
+                out.verts.push_back(Maths::Vec3_SSE(x, y, z));
             }
         }
-        //////// sommet /////////
-
-        //////// face   /////////
-        else if (line[0] == 'f' && line[1] == ' ') {
-            // a face: read three vertex indices (1-based -> subtract 1)
+        else if (line[0] == 'f' && line[1] == ' ')
+        {
             const char* p = line + 2;
-            int a = obj__read_index(&p) - 1;
-            int b = obj__read_index(&p) - 1;
-            int c = obj__read_index(&p) - 1;
-            if (out->face_count == fcap) {
-                fcap *= 2;
-                out->faces = (int*)realloc(out->faces, fcap * 3 * sizeof(int));
+            const int n = out.vertCount();
+            int first, prev, cur;
+
+            if (!ObjReadIndex(p, n, first) || !ObjReadIndex(p, n, prev)) continue;
+
+            // triangulation en éventail : gère triangles, quads, polygones
+            while (ObjReadIndex(p, n, cur)) {
+                if (first >= 0 && first < n && prev >= 0 && prev < n && cur >= 0 && cur < n) {
+                    out.faces.push_back(first);
+                    out.faces.push_back(prev);
+                    out.faces.push_back(cur);
+                }
+                prev = cur;
             }
-            out->faces[out->face_count * 3 + 0] = a;
-            out->faces[out->face_count * 3 + 1] = b;
-            out->faces[out->face_count * 3 + 2] = c;
-            out->face_count++;
+
         }
-        //////// face   /////////
-        // 
-        // any other line type is ignored
+        
     }
 
     fclose(f);
-    return 1;
+    return !out.verts.empty() && !out.faces.empty();;
 }
 
-static void mesh_free(Mesh* m) {
-    free(m->verts);
-    free(m->faces);
-    m->verts = NULL;
-    m->faces = NULL;
-    m->vert_count = 0;
-    m->face_count = 0;
-}
