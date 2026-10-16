@@ -5,6 +5,7 @@
 #include "Vec3_SSE.h"
 #include "Matrix4x4_SSE.h"
 #include <numbers>
+#include "asset/AssetLoader.h"
 
 
  const int WIDTH = 800;
@@ -49,9 +50,9 @@
 //        }
 //    }
 //}
-
-
-
+//
+//
+//
 //static void draw_circle_outline(int cx, int cy, int r, uint32_t color, Rasterizer& rtz, FrameBuffer& fb) {
 //    int x = 0;
 //    int y = r;
@@ -146,12 +147,12 @@ int main() {
 
 
 
-    // Edge colour per axis (rgb() isn't a compile-time constant, so
-       // we fill this at runtime rather than as a static initializer).
-    uint32_t axis_color[3];
-    axis_color[0] = setRGB(230, 80, 80);   // x : red
-    axis_color[1] = setRGB(80, 210, 90);   // y : green
-    axis_color[2] = setRGB(90, 140, 240);   // z : blue
+
+    Mesh mesh;
+    if (!mesh_load("Assets/spot.obj", &mesh)) return 1;
+    printf("loaded spot.obj: %d vertices, %d faces\n",
+        mesh.vert_count, mesh.face_count);
+
 
 
 
@@ -167,7 +168,7 @@ int main() {
         0.1f, 100.0f);
     // Camera: positioned 5 units back on +z (eye), aimed at the
     // origin (target), with world-up being +y. See README section 5.10.
-    const auto eye = Maths::Vec3_SSE(0, 0, 5);
+    const auto eye = Maths::Vec3_SSE(0, 0, 3);
     const auto target = Maths::Vec3_SSE(0, 0, 0);
     const auto  up = Maths::Vec3_SSE(0, 1, 0);
     const auto view = Maths::Matrix4x4_SSE::LookAt(eye, target, up);
@@ -175,7 +176,11 @@ int main() {
 
 
 
-
+      // Per-vertex scratch buffers (projected screen coords + depth).
+    int* screen_x = (int*)malloc(mesh.vert_count * sizeof(int));
+    int* screen_y = (int*)malloc(mesh.vert_count * sizeof(int));
+    float* cam_depth = (float*)malloc(mesh.vert_count * sizeof(float));
+    bool* visible = (bool*)malloc(mesh.vert_count * sizeof(bool));
 
     /////////////////////// RUN /////////////////////
 
@@ -203,51 +208,46 @@ int main() {
         // then projection — README section 5.11).
         Maths::Matrix4x4_SSE model = Maths::Matrix4x4_SSE::RotationY(t * 0.8f) *  Maths::Matrix4x4_SSE::RotationX(t * 0.5f);
         Maths::Matrix4x4_SSE mvp = projection * (view * model);
+        Maths::Vec4_SSE vert;
 
         // Run all 8 cube corners through the pipeline, storing the
         // resulting screen pixel of each. `visible[i]` says whether
         // corner i ended up in front of the camera.
-        int  screen_x[8], screen_y[8];
-        bool visible[8];
-        for (int i = 0; i < 8; i++) {
-
-            Maths::Vec4_SSE vert;
-            
-            // Step 1 — one matrix multiply (the vertex carries w = 1).
-            Maths::Vec4_SSE clip = mvp * vert.FromPoint(CUBE_VERTS[i]);
-
-            // Behind the camera? w came out <= 0; dividing would give
-            // garbage, so skip this corner (proper clipping is ch. 12).
+        float dmin = 1e30f, dmax = -1e30f;
+        for (int i = 0; i < mesh.vert_count; i++) {
+            Maths::Vec4_SSE clip = mvp * vert.FromPoint(mesh.verts[i]);
             if (clip.reg.m128_f32[3] <= 0.0001f) { visible[i] = false; continue; }
-
-            // Step 2 — the perspective divide. This is where distant
-            // things actually get smaller: x and y are divided by the
-            // depth that the projection matrix parked in w.
-            float ndc_x = clip.reg.m128_f32[0] / clip.reg.m128_f32[3];     // now in -1..+1
+            float ndc_x = clip.reg.m128_f32[0] / clip.reg.m128_f32[3];
             float ndc_y = clip.reg.m128_f32[1] / clip.reg.m128_f32[3];
-
-            // Step 3 — viewport remap: NDC (-1..+1) to pixels. The y
-            // term flips top-for-bottom because screen rows count down
-            // (chapter 1), while NDC has +y up.
             screen_x[i] = (int)((ndc_x + 1.0f) * 0.5f * WIDTH);
             screen_y[i] = (int)((1.0f - (ndc_y + 1.0f) * 0.5f) * HEIGHT);
+            cam_depth[i] = clip.reg.m128_f32[3];                       // camera-space depth (bigger = farther)
             visible[i] = true;
+            if (clip.reg.m128_f32[3] < dmin) dmin = clip.reg.m128_f32[3];
+            if (clip.reg.m128_f32[3] > dmax) dmax = clip.reg.m128_f32[3];
         }
+        float drange = (dmax > dmin) ? (dmax - dmin) : 1.0f;
 
         fb.Clear(setRGB(16, 16, 24));
 
-        // Draw the 12 edges, each connecting two of the projected
-        // corners. v0/v1 are the corner indices; axis (0/1/2) picks
-        // the edge's colour so x/y/z edges read as red/green/blue.
-        for (int i = 0; i < 12; i++) {
-            int v0 = CUBE_EDGES[i][0];
-            int v1 = CUBE_EDGES[i][1];
-            int axis = CUBE_EDGES[i][2];
-            if (!visible[v0] || !visible[v1]) continue;
-            rtz.draw_line(screen_x[v0], screen_y[v0],
-                screen_x[v1], screen_y[v1], axis_color[axis]);
-        }
 
+        for (int fidx = 0; fidx < mesh.face_count; fidx++) {
+            int a = mesh.faces[fidx * 3 + 0];
+            int b = mesh.faces[fidx * 3 + 1];
+            int c = mesh.faces[fidx * 3 + 2];
+            if (!visible[a] || !visible[b] || !visible[c]) continue;
+
+            float avg_d = (cam_depth[a] + cam_depth[b] + cam_depth[c]) / 3.0f;
+            float far01 = (avg_d - dmin) / drange;            // 0 near, 1 far
+            int level = 240 - (int)(far01 * 200.0f);          // 240 near .. 40 far
+            if (level < 0) level = 0; if (level > 255) level = 255;
+            uint32_t color = setRGB((uint8_t)level, (uint8_t)level, (uint8_t)level);
+
+            rtz.draw_line(screen_x[a], screen_y[a], screen_x[b], screen_y[b], color);
+            rtz.draw_line(screen_x[b], screen_y[b], screen_x[c], screen_y[c], color);
+            rtz.draw_line(screen_x[c], screen_y[c], screen_x[a], screen_y[a], color);
+        }
+    
 
 
         // --- Affichage ---
@@ -276,6 +276,8 @@ int main() {
 
     }
 
+    free(screen_x); free(screen_y); free(cam_depth); free(visible);
+    mesh_free(&mesh);
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

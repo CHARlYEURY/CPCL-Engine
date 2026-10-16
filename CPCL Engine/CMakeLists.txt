@@ -27,8 +27,22 @@ target_link_libraries(App PRIVATE
     ${SDL3_DIR}/lib/x64/SDL3.lib   
 )
 
+
 add_custom_command(TARGET App POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${SDL3_DIR}/lib/x64/SDL3.dll
         $<TARGET_FILE_DIR:App>
+)
+
+# Copier les assets à côté de l'exécutable
+add_custom_command(TARGET App POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/Assets"
+        "$<TARGET_FILE_DIR:App>/Assets"
+)
+
+
+# Définir le répertoire de travail pour le débogueur Visual Studio
+set_property(TARGET App PROPERTY
+    VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:App>"
 )
