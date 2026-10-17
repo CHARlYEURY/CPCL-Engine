@@ -10,11 +10,16 @@ set(SDL3_DIR    ${CMAKE_SOURCE_DIR}/ThirdParty/SDL3)
 add_library(LibMath INTERFACE)
 target_include_directories(LibMath INTERFACE ${CMAKE_SOURCE_DIR}/ThirdParty/LibMath)
 
+add_library(Stb INTERFACE)
+target_include_directories(Stb INTERFACE ${CMAKE_SOURCE_DIR}/ThirdParty/Stb)
+
+
 # ---------- Engine (bibliothèque) ----------
 file(GLOB_RECURSE ENGINE_SOURCES CONFIGURE_DEPENDS Engine/*.cpp)
 add_library(Engine STATIC ${ENGINE_SOURCES})
 target_include_directories(Engine PUBLIC Engine)
 target_link_libraries(Engine PUBLIC LibMath)
+target_link_libraries(Engine PUBLIC Stb)
 
 
 # ---------- App (exécutable) ----------

@@ -18,7 +18,8 @@ int ZBuffer::edge(int ax, int ay, int bx, int by, int px, int py)
     return (bx - ax) * (py - ay) - (by - ay) * (px - ax);
 }
 
-void ZBuffer::draw_triangle_zbuffer(int x0, int y0, float z0, int x1, int y1, float z1, int x2, int y2, float z2, float zmin, float zrange, Rasterizer& rtz, FrameBuffer& fb)
+void ZBuffer::draw_triangle_zbuffer(int x0, int y0, float z0, float iw0, UV uv0,int x1, int y1, float z1, float iw1, UV uv1,
+    int x2, int y2, float z2, float iw2, UV uv2, Rasterizer& rtz, FrameBuffer& fb, const Texture& tex)
 {
 
     int area = edge(x0, y0, x1, y1, x2, y2);
@@ -31,9 +32,11 @@ void ZBuffer::draw_triangle_zbuffer(int x0, int y0, float z0, int x1, int y1, fl
     // vertices 1 and 2 flips a negative area positive — and the
     // depth z1/z2 must ride along with their vertices.
     if (area < 0) {
-        int   tx = x1; int ty = y1; float tz = z1;
-        x1 = x2; y1 = y2; z1 = z2;
-        x2 = tx; y2 = ty; z2 = tz;
+        std::swap(x1, x2);
+        std::swap(y1, y2);
+        std::swap(z1, z2);
+        std::swap(iw1, iw2);
+        std::swap(uv1, uv2);
         area = -area;
     }
 
@@ -44,6 +47,14 @@ void ZBuffer::draw_triangle_zbuffer(int x0, int y0, float z0, int x1, int y1, fl
     int maxy = clampi(y0 > y1 ? (y0 > y2 ? y0 : y2) : (y1 > y2 ? y1 : y2), 0, Heights - 1);
 
     float inv_area = 1.0f / (float)area;
+
+    // Pre-divide the UVs by w. These (u/w, v/w) are the quantities
+   // that DO interpolate linearly in screen space — unlike u, v
+   // themselves. 1/w interpolates linearly too.
+    float u0w = uv0.x * iw0, v0w = uv0.y * iw0;
+    float u1w = uv1.x * iw1, v1w = uv1.y * iw1;
+    float u2w = uv2.x * iw2, v2w = uv2.y * iw2;
+
 
     for (int y = miny; y <= maxy; y++) {
         for (int x = minx; x <= maxx; x++) {
@@ -66,13 +77,17 @@ void ZBuffer::draw_triangle_zbuffer(int x0, int y0, float z0, int x1, int y1, fl
 
             int idx = y * Widths + x;
 
-            // Shade by depth: map [zmin .. zmax] to bright .. dim.
-            float far01 = (z - zmin) / zrange;          // 0 near, 1 far
-            int level = 240 - (int)(far01 * 200.0f);    // 240 near .. 40 far
-            level = clampi(level, 0, 255);
+            // Interpolate u/w, v/w, 1/w linearly, then divide back.
+            float uw = l0 * u0w + l1 * u1w + l2 * u2w;
+            float vw = l0 * v0w + l1 * v1w + l2 * v2w;
+            float iw = l0 * iw0 + l1 * iw1 + l2 * iw2;
+            float u = uw / iw;
+            float v = vw / iw;
+
+            
             if (z >= zbuffer[idx]) continue;   // un pixel plus proche est déjà là
             zbuffer[idx] = z;
-            fb[idx] = setRGB((uint8_t)level, (uint8_t)level, (uint8_t)level);
+            fb[idx] = tex.Sample(u,v);
         }
     }
 }
