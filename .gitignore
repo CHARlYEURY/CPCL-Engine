@@ -428,3 +428,4 @@ FodyWeavers.xsd
 #*.lscache
 !ThirdParty/**/*.lib
 !ThirdParty/**/*.dll
+!*.obj

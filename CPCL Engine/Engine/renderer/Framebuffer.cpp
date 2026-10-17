@@ -9,6 +9,7 @@ FrameBuffer::FrameBuffer(int width, int height) : size_width(width), size_height
     
 }
 
+
 void FrameBuffer::Clear(uint32_t color)
 {
     std::fill(pixels.begin(), pixels.end(), color);

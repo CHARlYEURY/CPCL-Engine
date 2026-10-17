@@ -6,6 +6,7 @@
 #include "Matrix4x4_SSE.h"
 #include <numbers>
 #include "asset/AssetLoader.h"
+#include "renderer/Z_buffer.h"
 
 
  const int WIDTH = 800;
@@ -143,6 +144,8 @@ int main() {
 
     FrameBuffer fb(WIDTH, HEIGHT);
     Rasterizer rtz(fb);
+	ZBuffer zb(WIDTH, HEIGHT);
+
 
 
 
@@ -179,6 +182,7 @@ int main() {
     const int vertCount = mesh.vertCount();
     std::vector<int>   screen_x(vertCount);
     std::vector<int>   screen_y(vertCount);
+    std::vector<float>   ndc_z(vertCount);
     std::vector<float> cam_depth(vertCount);
     std::vector<char>  visible(vertCount);
 
@@ -210,44 +214,50 @@ int main() {
         Maths::Matrix4x4_SSE mvp = projection * (view * model);
         Maths::Vec4_SSE vert;
 
-        // Run all 8 cube corners through the pipeline, storing the
-        // resulting screen pixel of each. `visible[i]` says whether
-        // corner i ended up in front of the camera.
-        float dmin = 1e30f, dmax = -1e30f;
+       
+
+
+        // Project every vertex once. We store NDC z (clip.z / clip.w):
+        // that is the value the Z-buffer compares, and it interpolates
+        // correctly in screen space. We also track its min/max across
+        // the model so the depth shading uses the full grey range
+        // (NDC z barely changes across a small object, so without this
+        // rescale the whole cow would be one flat shade).
+        float zmin = 1e30f, zmax = -1e30f;
+		Maths::Vec4_SSE point;
         for (int i = 0; i < mesh.vertCount(); i++) {
-            Maths::Vec4_SSE clip = mvp * vert.FromPoint(mesh.verts[i]);
+            Maths::Vec4_SSE clip = mvp * point.FromPoint(mesh.verts[i]);
             if (clip.reg.m128_f32[3] <= 0.0001f) { visible[i] = false; continue; }
             float ndc_x = clip.reg.m128_f32[0] / clip.reg.m128_f32[3];
             float ndc_y = clip.reg.m128_f32[1] / clip.reg.m128_f32[3];
+            float nz = clip.reg.m128_f32[2] / clip.reg.m128_f32[3];
             screen_x[i] = (int)((ndc_x + 1.0f) * 0.5f * WIDTH);
-            screen_y[i] = (int)(((1.0f - ndc_y) * 0.5f) * HEIGHT);
-            cam_depth[i] = clip.reg.m128_f32[3];                       // camera-space depth (bigger = farther)
+            screen_y[i] = (int)((1.0f - (ndc_y + 1.0f) * 0.5f) * HEIGHT);
+            ndc_z[i] = nz;
             visible[i] = true;
-            if (clip.reg.m128_f32[3] < dmin) dmin = clip.reg.m128_f32[3];
-            if (clip.reg.m128_f32[3] > dmax) dmax = clip.reg.m128_f32[3];
+            if (nz < zmin) zmin = nz;
+            if (nz > zmax) zmax = nz;
         }
-        float drange = (dmax > dmin) ? (dmax - dmin) : 1.0f;
+        float zrange = (zmax > zmin) ? (zmax - zmin) : 1.0f;
 
         fb.Clear(setRGB(16, 16, 24));
+        zb.clear_Zbuffer();
 
-
+        // Fill every triangle. Order no longer matters: the depth
+        // test, not the draw order, decides what ends up visible.
         for (int fidx = 0; fidx < mesh.faceCount(); fidx++) {
             int a = mesh.faces[fidx * 3 + 0];
             int b = mesh.faces[fidx * 3 + 1];
             int c = mesh.faces[fidx * 3 + 2];
             if (!visible[a] || !visible[b] || !visible[c]) continue;
 
-            float avg_d = (cam_depth[a] + cam_depth[b] + cam_depth[c]) / 3.0f;
-            float far01 = (avg_d - dmin) / drange;            // 0 near, 1 far
-            int level = 240 - (int)(far01 * 200.0f);          // 240 near .. 40 far
-            if (level < 0) level = 0; if (level > 255) level = 255;
-            uint32_t color = setRGB((uint8_t)level, (uint8_t)level, (uint8_t)level);
-
-            rtz.draw_line(screen_x[a], screen_y[a], screen_x[b], screen_y[b], color);
-            rtz.draw_line(screen_x[b], screen_y[b], screen_x[c], screen_y[c], color);
-            rtz.draw_line(screen_x[c], screen_y[c], screen_x[a], screen_y[a], color);
+            zb.draw_triangle_zbuffer(screen_x[a], screen_y[a], ndc_z[a],
+                screen_x[b], screen_y[b], ndc_z[b],
+                screen_x[c], screen_y[c], ndc_z[c],
+                zmin, zrange, rtz, fb);
         }
-    
+
+
 
 
         // --- Affichage ---
