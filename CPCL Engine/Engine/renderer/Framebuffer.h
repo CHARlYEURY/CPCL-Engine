@@ -16,6 +16,13 @@ private:
 public:
 
 	FrameBuffer(int width, int height);
+	//FrameBuffer(int mul);
+
+	// Accès en écriture
+	uint32_t& operator[](size_t idx) { return pixels[idx]; }
+	// Accès en lecture (objets const)
+	const uint32_t& operator[](size_t idx) const { return pixels[idx]; }
+
 
 	void Clear(uint32_t color);
 	void SetPixel(int x, int y, uint32_t color);

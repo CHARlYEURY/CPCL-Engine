@@ -3,6 +3,9 @@
 #include <stdexcept>
 #include <limits>
 
+#define SHUFFLE_MASK(x, y, z, w) _MM_SHUFFLE(z, y, x, w)
+
+
 namespace Maths
 {
 	
@@ -18,6 +21,10 @@ namespace Maths
 		{
 			reg = _mm_setzero_ps();
 		};
+
+		Vec4_SSE(float x, float y, float z) {
+			reg = _mm_setr_ps(x, y, z, 0.0f);
+		}
 		Vec4_SSE(__m128 value) : reg(value) {}
 		
 		Vec4_SSE operator+(const Vec4_SSE& other) const;
