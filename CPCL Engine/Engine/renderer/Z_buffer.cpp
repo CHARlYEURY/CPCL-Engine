@@ -1,5 +1,7 @@
 #include "Z_buffer.h"
 
+#define USE_ZBUFFER true
+
 void ZBuffer::clear_Zbuffer()
 {
     for (int i = 0; i < Widths * Heights; i++)
@@ -70,7 +72,9 @@ void ZBuffer::draw_triangle_zbuffer(int x0, int y0, float z0, int x1, int y1, fl
             float far01 = (z - zmin) / zrange;          // 0 near, 1 far
             int level = 240 - (int)(far01 * 200.0f);    // 240 near .. 40 far
             level = clampi(level, 0, 255);
+#if USE_ZBUFFER
             if (z >= zbuffer[idx]) continue;   // un pixel plus proche est déjà là
+#endif
             zbuffer[idx] = z;
             fb[idx] = setRGB((uint8_t)level, (uint8_t)level, (uint8_t)level);
         }

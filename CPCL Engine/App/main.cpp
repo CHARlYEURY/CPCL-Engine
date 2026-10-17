@@ -14,6 +14,7 @@
  const int SCALE = 1;  
  const float PI = std::numbers::pi;
 
+#define CULL_BACKFACES true
 
 //static void draw_triangle(int x0, int y0, uint32_t c0,
 //    int x1, int y1, uint32_t c1,
@@ -232,7 +233,7 @@ int main() {
             float ndc_y = clip.reg.m128_f32[1] / clip.reg.m128_f32[3];
             float nz = clip.reg.m128_f32[2] / clip.reg.m128_f32[3];
             screen_x[i] = (int)((ndc_x + 1.0f) * 0.5f * WIDTH);
-            screen_y[i] = (int)((1.0f - (ndc_y + 1.0f) * 0.5f) * HEIGHT);
+            screen_y[i] = (int)(((1.0f - ndc_y) * 0.5f) * HEIGHT);
             ndc_z[i] = nz;
             visible[i] = true;
             if (nz < zmin) zmin = nz;
@@ -245,19 +246,28 @@ int main() {
 
         // Fill every triangle. Order no longer matters: the depth
         // test, not the draw order, decides what ends up visible.
+        int drawn = 0, culled = 0;
         for (int fidx = 0; fidx < mesh.faceCount(); fidx++) {
             int a = mesh.faces[fidx * 3 + 0];
             int b = mesh.faces[fidx * 3 + 1];
             int c = mesh.faces[fidx * 3 + 2];
             if (!visible[a] || !visible[b] || !visible[c]) continue;
 
+
+            int area = rtz.edge(screen_x[a], screen_y[a], screen_x[b], screen_y[b], screen_x[c], screen_y[c]);
+
+#if CULL_BACKFACES
+            if (area >= 0) { culled++; continue; }
+#endif
+            (void)area;
+            drawn++;
+
+
             zb.draw_triangle_zbuffer(screen_x[a], screen_y[a], ndc_z[a],
                 screen_x[b], screen_y[b], ndc_z[b],
                 screen_x[c], screen_y[c], ndc_z[c],
                 zmin, zrange, rtz, fb);
         }
-
-
 
 
         // --- Affichage ---
