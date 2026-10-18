@@ -1,5 +1,7 @@
 #pragma once
 #include <xmmintrin.h>
+#include <cmath>
+#include <stdexcept>
 
 // Sélectionne l'élément pour chaque composante : (z, y, x, w)
 #define SHUFFLE_MASK(x, y, z, w) _MM_SHUFFLE(z, y, x, w)
