@@ -10,16 +10,22 @@ void ZBuffer::clear_Zbuffer()
     }
 }
 
+// Borne v dans [lo, hi]
 int ZBuffer::clampi(int v, int lo, int hi)
 {
 	return v < lo ? lo : (v > hi ? hi : v);
 }
 
+// Edge function 2x l'aire signée du triangle (a, b, p)
+// Le signe dit de quel côté de l'arête AB se trouve P
+// Fonction fait en plus de celle de rtz, ce sera à retirer plus tard, mais pour l'instant on garde les deux juste pour test, je ferais du clean lundi 
 int ZBuffer::edge(int ax, int ay, int bx, int by, int px, int py)
 {
     return (bx - ax) * (py - ay) - (by - ay) * (px - ax);
 }
 
+// x^32 par 5 élévations au carré (5 multiplications au lieu d'un std::pow).
+// je l'ai mise ici car elle était dans le tuto mais j'utilise std::pow, donc a voire laquelle est la meilleur, pareil on verra pendant le clean 
 float ZBuffer::pow32(float x)
 {
     float x2 = x * x;
@@ -29,6 +35,8 @@ float ZBuffer::pow32(float x)
     return x16 * x16;
 }
 
+// Combine la couleur de texture avec l'éclairage Phong :
+// canal = texel * diffuse + blanc * spéculaire
 uint32_t ZBuffer::color_phong(uint32_t texel, float diffuse_k, float spec_k)
 {
     float r = (float)((texel >> 16) & 0xFF) * diffuse_k + 255.0f * spec_k;
@@ -41,7 +49,7 @@ uint32_t ZBuffer::color_phong(uint32_t texel, float diffuse_k, float spec_k)
         | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b;
 }
 
-
+// Multiplie une couleur par k (clampé à [0,1]), je l'utilise plus non plus mais présent dans les tuto donc je la garde pour l'instant
 uint32_t ZBuffer::color_scale(uint32_t c, float k)
 {
     if (k < 0.0f) k = 0.0f;
@@ -52,16 +60,17 @@ uint32_t ZBuffer::color_scale(uint32_t c, float k)
     return ((uint32_t)0xFFu << 24) | (r << 16) | (g << 8) | b;
 }
 
+// Normales lissées : moyenne des normales des faces qui partagent un sommet
 void ZBuffer::compute_vertex_normals(const Mesh& mesh, const std::vector<Maths::Vec3_SSE>& face_normals, std::vector<Maths::Vec3_SSE>& out)
 {
     const int vertCount = mesh.vertCount();
     const int faceCount = mesh.faceCount();
 
     // 1. Tout remettre à zéro (resize + assign évite les anciennes valeurs)
-    out.assign(vertCount, Maths::Vec3_SSE(0, 0, 0));
+    out.assign(vertCount, Maths::Vec3_SSE(0, 0, 0));        // remise à zéro
 
     // 2. Chaque triangle ajoute sa normale à ses 3 sommets
-    for (int f = 0; f < faceCount; f++) {
+    for (int f = 0; f < faceCount; f++) {                   // accumulation
         for (int k = 0; k < 3; k++) {
             int v = mesh.faces[f * 3 + k];
             out[v] = out[v] + face_normals[f];
@@ -74,6 +83,8 @@ void ZBuffer::compute_vertex_normals(const Mesh& mesh, const std::vector<Maths::
     }
 }
 
+// Une normale unitaire par triangle : cross(v1-v0, v2-v0) normalisé
+// Le sens (vers l'extérieur ou l'intérieur) dépend du winding du mesh
 void ZBuffer::compute_face_normals(const Mesh& mesh, std::vector<Maths::Vec3_SSE>& out)
 {
     const int faceCount = mesh.faceCount();
@@ -96,7 +107,8 @@ void ZBuffer::compute_face_normals(const Mesh& mesh, std::vector<Maths::Vec3_SSE
 
 
 
-
+// Rasterise un triangle avec Z-test, texture perspective-correcte et Phong
+// x,y = coords écran (entières) ; z = profondeur NDC ; iw = 1/w (clip space), ça devrait pas être la, mais je me suis emeler les peinceau sur la structure, donc je verrais durant le clean 
 void ZBuffer::draw_triangle_zbuffer(
     int x0, int y0, float z0, float iw0, UV uv0, Maths::Vec3_SSE n0,
     int x1, int y1, float z1, float iw1, UV uv1, Maths::Vec3_SSE n1,
@@ -106,12 +118,7 @@ void ZBuffer::draw_triangle_zbuffer(
     int area = edge(x0, y0, x1, y1, x2, y2);
     if (area == 0) return;                  // degenerate sliver
 
-    // Force one winding so "inside" means "all weights >= 0". We
-    // accept BOTH facing directions here (back faces are removed in
-    // chapter 8); the Z-buffer is what sorts them out for now, so we
-    // must be able to fill a triangle of either winding. Swapping
-    // vertices 1 and 2 flips a negative area positive — and the
-    // depth z1/z2 must ride along with their vertices.
+    // Normalise le winding : après ça, "dedans" = les 3 edges >= 0.
     if (area < 0) {
         std::swap(x1, x2);
         std::swap(y1, y2);
@@ -122,15 +129,15 @@ void ZBuffer::draw_triangle_zbuffer(
         area = -area;
     }
 
-    // Bounding box, clamped to the screen.
+    // Bounding box du triangle, clampée à l'écran
     int minx = clampi(x0 < x1 ? (x0 < x2 ? x0 : x2) : (x1 < x2 ? x1 : x2), 0, Widths - 1);
     int miny = clampi(y0 < y1 ? (y0 < y2 ? y0 : y2) : (y1 < y2 ? y1 : y2), 0, Heights - 1);
     int maxx = clampi(x0 > x1 ? (x0 > x2 ? x0 : x2) : (x1 > x2 ? x1 : x2), 0, Widths - 1);
     int maxy = clampi(y0 > y1 ? (y0 > y2 ? y0 : y2) : (y1 > y2 ? y1 : y2), 0, Heights - 1);
 
-    float inv_area = 1.0f / (float)area;
+    float inv_area = 1.0f / (float)area;        // division par triangle
 
-    // Pre-divide the UVs by w. These (u/w, v/w) are the quantities
+   // Pre-divide the UVs by w. These (u/w, v/w) are the quantities
    // that DO interpolate linearly in screen space — unlike u, v
    // themselves. 1/w interpolates linearly too.
     float u0w = uv0.x * iw0, v0w = uv0.y * iw0;
@@ -143,6 +150,7 @@ void ZBuffer::draw_triangle_zbuffer(
 
     for (int y = miny; y <= maxy; y++) {
         for (int x = minx; x <= maxx; x++) {
+            // Poids de chaque arête = aire du sous-triangle opposé au sommet
             int e0 = edge(x1, y1, x2, y2, x, y);
             int e1 = edge(x2, y2, x0, y0, x, y);
             int e2 = edge(x0, y0, x1, y1, x, y);
@@ -176,10 +184,12 @@ void ZBuffer::draw_triangle_zbuffer(
 
 			N = N.Normalize();
 
+            // Diffus (Lambert) : cos de l'angle normale/lumière, clampé à 0
 			float ndot1 = N.Dot(L);
 			if (ndot1 < 0) ndot1 = 0;
 			float diffuse_k = AMBIENT + (1.0f - AMBIENT) * ndot1;
 
+            // Spéculaire (Blinn-Phong) N*H puis puissance (brillance = 16)
 			float ndoth = N.Dot(H);
 			if (ndoth < 0) ndoth = 0;
 			float specular = std::pow(ndoth, 16.0f); // Exponent for shininess

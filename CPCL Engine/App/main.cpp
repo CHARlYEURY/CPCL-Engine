@@ -18,12 +18,12 @@
 #define AMBIENT 0.18f
 
  
-
+  
 
 
 int main() {
     
-
+	/////////////////////////////////////////////////////////// pas faire gaffe ////////////////////////////////////////////////////////////
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
         std::cerr << "SDL_Init: " << SDL_GetError() << "\n";
@@ -54,6 +54,8 @@ int main() {
     // Pixels nets (pas de lissage) quand on agrandit
     SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
 
+    /////////////////////////////////////////////////////////// pas faire gaffe ////////////////////////////////////////////////////////////
+
     FrameBuffer fb(WIDTH, HEIGHT);
     Rasterizer rtz(fb);
 	ZBuffer zb(WIDTH, HEIGHT);
@@ -74,45 +76,46 @@ int main() {
 
     std::vector<Maths::Vec3_SSE> face_normals;
     std::vector<Maths::Vec3_SSE> vertex_normals;
+
+    // Normales calculées UNE fois, en espace objet : le mesh est rigide, elles ne
+    // changent pas. Seule la rotation du modèle les fera tourner (plus bas)
     zb.compute_face_normals(mesh, face_normals);
     zb.compute_vertex_normals(mesh, face_normals, vertex_normals);
 
 
+    // Éclairage en espace MONDE. Ces vecteurs pointent VERS la lumière / la caméra
     const Maths::Vec3_SSE light = Maths::Vec3_SSE(0.4f, 0.8f, 0.45f).Normalize();
     const Maths::Vec3_SSE view_dir(0, 0, 1);
     const Maths::Vec3_SSE half_vec = (light + view_dir).Normalize();
 
 
     ////////////////////// CAMERA ////////////////////////////
-    // Projection and view stay fixed; only the model spins.
+    
     const float aspect = (float)WIDTH / (float)HEIGHT;
     const float fovY = 60.0f * PI / 180.0f;
-    // 60-degree vertical field of view (radians() converts to the
-    // radians the math needs); window shape; near and far clip
-    // distances. See README section 5.6.
+    
     const Maths::Matrix4x4_SSE projection = Maths::Matrix4x4_SSE::Perspective(fovY, aspect,
         0.1f, 100.0f);
-    // Camera: positioned 5 units back on +z (eye), aimed at the
-    // origin (target), with world-up being +y. See README section 5.10.
+   
     const auto eye = Maths::Vec3_SSE(0, 0, 3);
     const auto target = Maths::Vec3_SSE(0, 0, 0);
     const auto  up = Maths::Vec3_SSE(0, 1, 0);
     const auto view = Maths::Matrix4x4_SSE::LookAt(eye, target, up);
     ////////////////////// CAMERA ////////////////////////////
 
-
-	const Maths::Vec3_SSE lightDir = Maths::Vec3_SSE(0.577f, 0.577f, -0.577f).Normalize();
-
+   
+	
+    // Données par sommet, allouées une fois
     const int vertCount = mesh.vertCount();
     std::vector<int>   screen_x(vertCount);
     std::vector<int>   screen_y(vertCount);
-    std::vector<float>   ndc_z(vertCount);
-    std::vector<float> inv_w(vertCount);
+    std::vector<float>   ndc_z(vertCount);  // profondeur pour le Z-test
+    std::vector<float> inv_w(vertCount);    // 1/w pour la correction de perspective
     std::vector<Maths::Vec3_SSE> normal_world(vertCount);
     std::vector<char>  visible(vertCount);
 
-    /////////////////////// RUN /////////////////////
 
+    /////////////////////// RUN /////////////////////
     bool running = true;
     while (running)
     {
@@ -123,18 +126,13 @@ int main() {
                 running = false;
         }
 
-        // --- Rendu CPU ---
-        fb.Clear(setRGB(0, 0, 0, 0));
-
+       
         double seconds = (double)(SDL_GetPerformanceCounter() - start) / (double)freq;
         float t = (float)seconds;
 
 
 
-        // Build the model matrix: spin around y, and a bit around x,
-        // so we see the cube from a lively angle. Then chain the three
-        // matrices into one (reads right-to-left: model, then view,
-        // then projection — README section 5.11).
+        // Matrice modèle : se lit de droite à gauche → d'abord RotationX, puis RotationY
         Maths::Matrix4x4_SSE model = Maths::Matrix4x4_SSE::RotationY(t * 0.8f) *  Maths::Matrix4x4_SSE::RotationX(t * 0.5f);
         Maths::Matrix4x4_SSE mvp = projection * (view * model);
         Maths::Vec4_SSE vert;
@@ -148,9 +146,10 @@ int main() {
         // the model so the depth shading uses the full grey range
         // (NDC z barely changes across a small object, so without this
         // rescale the whole cow would be one flat shade).
-        float zmin = 1e30f, zmax = -1e30f;
+        //float zmin = 1e30f, zmax = -1e30f;
 		Maths::Vec4_SSE point;
         for (int i = 0; i < mesh.vertCount(); i++) {
+            // Position objet -> clip FromPoint met w = 1 (c'est un point, la translation compte).
             Maths::Vec4_SSE clip = mvp * point.FromPoint(mesh.verts[i]);
             float w = clip.reg.m128_f32[3];
             if (w <= 0.0001f) { visible[i] = false; continue; }
@@ -160,6 +159,7 @@ int main() {
             float ndc_y = clip.reg.m128_f32[1] * invw;
             float nz = clip.reg.m128_f32[2] * invw;
 
+            // NDC → pixels. y inversé : en NDC y monte, à l'écran il descend.
             screen_x[i] = (int)((ndc_x + 1.0f) * 0.5f * WIDTH);
             screen_y[i] = (int)((1.0f - (ndc_y + 1.0f) * 0.5f) * HEIGHT);
             ndc_z[i] = nz;
@@ -167,12 +167,11 @@ int main() {
 			normal_world[i] = model.TransformDirection(vertex_normals[i]);
             visible[i] = true;
         }
-        float zrange = (zmax > zmin) ? (zmax - zmin) : 1.0f;
 
         fb.Clear(setRGB(16, 16, 24));
-        zb.clear_Zbuffer();
+        zb.clear_Zbuffer();           // profondeur remise à « infini »
 
-        int drawn = 0, culled = 0;
+		int culled = 0;
 
         // Fill every triangle. Order no longer matters: the depth
         // test, not the draw order, decides what ends up visible.
@@ -182,15 +181,16 @@ int main() {
             int c = mesh.faces[fidx * 3 + 2];
             if (!visible[a] || !visible[b] || !visible[c]) continue;
 
+            // Aire signée à l'écran : sert à décider si le triangle nous fait face
             int area = zb.edge(screen_x[a], screen_y[a], screen_x[b], screen_y[b], screen_x[c], screen_y[c]);
 
-			Maths::Vec3_SSE n = model.TransformDirection(face_normals[fidx]);
-			float ndot1 = n.Dot(lightDir);
-			if (ndot1 < 0) ndot1 = 0;
-			float brightness = AMBIENT + (1.0f - AMBIENT) * ndot1;
 
-
+            // Back-face culling. Avec y vers le bas, un triangle CCW dans le mesh a une
+            // aire NÉGATIVE : on garde area < 0, on jette les faces de dos (et area == 0)
             if (area >= 0) { culled++; continue; }
+
+            // L'OBJ a deux jeux d'indices distincts : positions (faces) et UV (uvFaces)
+            // -1 = pas d'UV pour ce coin -> on met (0,0)
             int ua = mesh.uvFaces[fidx * 3 + 0];
             int ub = mesh.uvFaces[fidx * 3 + 1];
             int uc = mesh.uvFaces[fidx * 3 + 2];
@@ -198,6 +198,8 @@ int main() {
             UV uvb = (ub >= 0) ? mesh.uvs[ub] : UV(0, 0);
             UV uvc = (uc >= 0) ? mesh.uvs[uc] : UV(0, 0);
 
+
+            // Rasterisation : tout ce qu'il faut par sommet + texture + L et 
             zb.draw_triangle_zbuffer(
                 screen_x[a], screen_y[a], ndc_z[a], inv_w[a], uva, normal_world[a],
                 screen_x[b], screen_y[b], ndc_z[b], inv_w[b], uvb, normal_world[b],
@@ -224,8 +226,8 @@ int main() {
             double fps = (double)fps_count / fps_accum;
             double ms = 1000.0 * fps_accum / (double)fps_count;
             snprintf(title, sizeof title,
-                "Chapter 08 — Backface culling  |  drew %d, culled %d of %d  |  %.1f FPS  (%.2f ms)",
-                drawn, culled, mesh.faceCount(), fps, ms);
+                "Chapter 08 — Backface culling  |  culled %d of %d  |  %.1f FPS  (%.2f ms)",
+               culled, mesh.faceCount(), fps, ms);
             SDL_SetWindowTitle(window, title);
             fps_accum = 0.0;
             fps_count = 0;
