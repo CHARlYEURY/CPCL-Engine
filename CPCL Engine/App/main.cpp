@@ -15,6 +15,9 @@
  const int SCALE = 1;  
  const float PI = std::numbers::pi;
 
+#define AMBIENT 0.18f
+
+ 
 
 
 
@@ -69,6 +72,15 @@ int main() {
 	if (!texture_load("Assets/spot_texture.png", tex)) return 1;
 	printf("loaded spot_texture.png: %d x %d\n", tex.width, tex.height);
 
+    std::vector<Maths::Vec3_SSE> face_normals;
+    std::vector<Maths::Vec3_SSE> vertex_normals;
+    zb.compute_face_normals(mesh, face_normals);
+    zb.compute_vertex_normals(mesh, face_normals, vertex_normals);
+
+
+    const Maths::Vec3_SSE light = Maths::Vec3_SSE(0.4f, 0.8f, 0.45f).Normalize();
+    const Maths::Vec3_SSE view_dir(0, 0, 1);
+    const Maths::Vec3_SSE half_vec = (light + view_dir).Normalize();
 
 
     ////////////////////// CAMERA ////////////////////////////
@@ -89,12 +101,14 @@ int main() {
     ////////////////////// CAMERA ////////////////////////////
 
 
+	const Maths::Vec3_SSE lightDir = Maths::Vec3_SSE(0.577f, 0.577f, -0.577f).Normalize();
 
     const int vertCount = mesh.vertCount();
     std::vector<int>   screen_x(vertCount);
     std::vector<int>   screen_y(vertCount);
     std::vector<float>   ndc_z(vertCount);
     std::vector<float> inv_w(vertCount);
+    std::vector<Maths::Vec3_SSE> normal_world(vertCount);
     std::vector<char>  visible(vertCount);
 
     /////////////////////// RUN /////////////////////
@@ -150,6 +164,7 @@ int main() {
             screen_y[i] = (int)((1.0f - (ndc_y + 1.0f) * 0.5f) * HEIGHT);
             ndc_z[i] = nz;
             inv_w[i] = invw;          // <-- la ligne qui manquait
+			normal_world[i] = model.TransformDirection(vertex_normals[i]);
             visible[i] = true;
         }
         float zrange = (zmax > zmin) ? (zmax - zmin) : 1.0f;
@@ -169,6 +184,12 @@ int main() {
 
             int area = zb.edge(screen_x[a], screen_y[a], screen_x[b], screen_y[b], screen_x[c], screen_y[c]);
 
+			Maths::Vec3_SSE n = model.TransformDirection(face_normals[fidx]);
+			float ndot1 = n.Dot(lightDir);
+			if (ndot1 < 0) ndot1 = 0;
+			float brightness = AMBIENT + (1.0f - AMBIENT) * ndot1;
+
+
             if (area >= 0) { culled++; continue; }
             int ua = mesh.uvFaces[fidx * 3 + 0];
             int ub = mesh.uvFaces[fidx * 3 + 1];
@@ -177,10 +198,11 @@ int main() {
             UV uvb = (ub >= 0) ? mesh.uvs[ub] : UV(0, 0);
             UV uvc = (uc >= 0) ? mesh.uvs[uc] : UV(0, 0);
 
-            zb.draw_triangle_zbuffer(screen_x[a], screen_y[a], ndc_z[a], inv_w[a], uva,
-                screen_x[b], screen_y[b], ndc_z[b], inv_w[b], uvb,
-                screen_x[c], screen_y[c], ndc_z[c], inv_w[c], uvc,
-                rtz ,fb ,tex);
+            zb.draw_triangle_zbuffer(
+                screen_x[a], screen_y[a], ndc_z[a], inv_w[a], uva, normal_world[a],
+                screen_x[b], screen_y[b], ndc_z[b], inv_w[b], uvb, normal_world[b],
+				screen_x[c], screen_y[c], ndc_z[c], inv_w[c], uvc, normal_world[c], 
+                rtz, fb, tex, light, half_vec);
         }
 
 
