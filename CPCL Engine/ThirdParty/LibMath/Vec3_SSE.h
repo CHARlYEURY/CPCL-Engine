@@ -8,6 +8,13 @@
 
 namespace Maths {
 
+	struct UV
+	{
+		float x, y;
+		UV() : x(0), y(0) {}
+		UV(float x, float y) : x(x), y(y) {}
+	};
+
 	class Vec3_SSE {
 	public:
 

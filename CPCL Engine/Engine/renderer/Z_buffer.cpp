@@ -107,18 +107,19 @@ void ZBuffer::compute_face_normals(const Mesh& mesh, std::vector<Maths::Vec3_SSE
 
 
 
-// Rasterise un triangle avec Z-test, texture perspective-correcte et Phong
+// rasterise un triangle avec Z-test, texture perspective-correcte et Phong
 // x,y = coords écran (entières) ; z = profondeur NDC ; iw = 1/w (clip space), ça devrait pas être la, mais je me suis emeler les peinceau sur la structure, donc je verrais durant le clean 
 void ZBuffer::draw_triangle_zbuffer(
-    int x0, int y0, float z0, float iw0, UV uv0, Maths::Vec3_SSE n0,
-    int x1, int y1, float z1, float iw1, UV uv1, Maths::Vec3_SSE n1,
-    int x2, int y2, float z2, float iw2, UV uv2, Maths::Vec3_SSE n2, Rasterizer& rtz, FrameBuffer& fb, const Texture& tex, Maths::Vec3_SSE L, Maths::Vec3_SSE H)
+    int x0, int y0, float z0, float iw0, Maths::UV uv0, Maths::Vec3_SSE n0,
+    int x1, int y1, float z1, float iw1, Maths::UV uv1, Maths::Vec3_SSE n1,
+    int x2, int y2, float z2, float iw2, Maths::UV uv2, Maths::Vec3_SSE n2, Rasterizer& rtz, FrameBuffer& fb, const Texture& tex, Maths::Vec3_SSE L, Maths::Vec3_SSE H)
 {
-
+    // 2x l'aire signée du triangle (v0, v1, v2). Le signe donne son sens de rotation
     int area = edge(x0, y0, x1, y1, x2, y2);
-    if (area == 0) return;                  // degenerate sliver
+    // aire nulle = triangle plat (3 points alignés) : rien à dessiner
+    if (area == 0) return;                 
 
-    // Normalise le winding : après ça, "dedans" = les 3 edges >= 0.
+    // normalise le winding : après ça, "dedans" = les 3 edges >= 0.
     if (area < 0) {
         std::swap(x1, x2);
         std::swap(y1, y2);
@@ -129,7 +130,9 @@ void ZBuffer::draw_triangle_zbuffer(
         area = -area;
     }
 
-    // Bounding box du triangle, clampée à l'écran
+    // a partir d'ici un pixel est dasn le triangle si ses 3 edge functions sont >= 0
+
+    // bounding box du triangle, clampée à l'écran
     int minx = clampi(x0 < x1 ? (x0 < x2 ? x0 : x2) : (x1 < x2 ? x1 : x2), 0, Widths - 1);
     int miny = clampi(y0 < y1 ? (y0 < y2 ? y0 : y2) : (y1 < y2 ? y1 : y2), 0, Heights - 1);
     int maxx = clampi(x0 > x1 ? (x0 > x2 ? x0 : x2) : (x1 > x2 ? x1 : x2), 0, Widths - 1);
@@ -137,12 +140,13 @@ void ZBuffer::draw_triangle_zbuffer(
 
     float inv_area = 1.0f / (float)area;        // division par triangle
 
-   // Pre-divide the UVs by w. These (u/w, v/w) are the quantities
-   // that DO interpolate linearly in screen space — unlike u, v
-   // themselves. 1/w interpolates linearly too.
+    // Pre-divide the UVs by w. These (u/w, v/w) are the quantities
+    // that DO interpolate linearly in screen space — unlike u, v
+    // themselves. 1/w interpolates linearly too.
     float u0w = uv0.x * iw0, v0w = uv0.y * iw0;
     float u1w = uv1.x * iw1, v1w = uv1.y * iw1;
     float u2w = uv2.x * iw2, v2w = uv2.y * iw2;
+
     Maths::Vec3_SSE n0w = n0 * iw0; 
     Maths::Vec3_SSE n1w = n1 * iw1; 
     Maths::Vec3_SSE n2w = n2 * iw2; 
@@ -150,26 +154,22 @@ void ZBuffer::draw_triangle_zbuffer(
 
     for (int y = miny; y <= maxy; y++) {
         for (int x = minx; x <= maxx; x++) {
-            // Poids de chaque arête = aire du sous-triangle opposé au sommet
+            // poids de chaque arête = aire du sous-triangle opposé au sommet
             int e0 = edge(x1, y1, x2, y2, x, y);
             int e1 = edge(x2, y2, x0, y0, x, y);
             int e2 = edge(x0, y0, x1, y1, x, y);
             if ((e0 | e1 | e2) < 0) continue;   // outside the triangle
 
-            // Barycentric weights, normalised to sum to 1.
+            // barycentric weights, normalised to sum to 1.
             float l0 = e0 * inv_area;
             float l1 = e1 * inv_area;
             float l2 = e2 * inv_area;
 
-            // Interpolate depth. NDC z is an AFFINE function of the
-            // screen position, so plain screen-space barycentric
-            // interpolation is exactly correct for it — no
-            // perspective correction needed (that comes in chapter 9,
-            // for textures). Smaller z = nearer the camera.
+
+            // profondeur au pixel mélange des 3 profondeurs (linéaire = correct pour z NDC)
             float z = l0 * z0 + l1 * z1 + l2 * z2;
 
             int idx = y * Widths + x;
-
 
             float iw = l0 * iw0 + l1 * iw1 + l2 * iw2;
             float inv_iw = 1.0f / iw;
@@ -177,26 +177,29 @@ void ZBuffer::draw_triangle_zbuffer(
             float u = (l0 * u0w + l1 * u1w + l2 * u2w) * inv_iw;
             float v = (l0 * v0w + l1 * v1w + l2 * v2w) * inv_iw;
 
+            // normale au pixel composante par composante, même formule que u et v
             Maths::Vec3_SSE N
                 ((l0 * n0w.reg.m128_f32[0] + l1 * n1w.reg.m128_f32[0] + l2 * n2w.reg.m128_f32[0]) * inv_iw,
                 (l0 * n0w.reg.m128_f32[1] + l1 * n1w.reg.m128_f32[1] + l2 * n2w.reg.m128_f32[1]) * inv_iw,
                 (l0 * n0w.reg.m128_f32[2] + l1 * n1w.reg.m128_f32[2] + l2 * n2w.reg.m128_f32[2]) * inv_iw);
 
+            // l'interpolation raccourcit le vecteur : on le remet à longueur 1 avant l'éclairage
 			N = N.Normalize();
 
-            // Diffus (Lambert) : cos de l'angle normale/lumière, clampé à 0
+            // diffus (Lambert) cos de l'angle normale/lumière, clampé à 0
 			float ndot1 = N.Dot(L);
 			if (ndot1 < 0) ndot1 = 0;
 			float diffuse_k = AMBIENT + (1.0f - AMBIENT) * ndot1;
 
-            // Spéculaire (Blinn-Phong) N*H puis puissance (brillance = 16)
+            // spéculaire (Blinn-Phong) N*H puis puissance (brillance = 16)
 			float ndoth = N.Dot(H);
 			if (ndoth < 0) ndoth = 0;
-			float specular = std::pow(ndoth, 16.0f); // Exponent for shininess
+			float specular = std::pow(ndoth, 32.f); // Exponent for shininess
 
 			uint32_t texel = tex.Sample(u,v);
             
             if (z >= zbuffer[idx]) continue;   // un pixel plus proche est déjà là
+
             zbuffer[idx] = z;
             fb[idx] = color_phong(texel, diffuse_k, specular);
         }

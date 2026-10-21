@@ -38,6 +38,7 @@ int main() {
         return 1;
     }
 
+
     // Texture qui reçoit les pixels du framebuffer
     SDL_Texture* texture = SDL_CreateTexture(renderer,
         SDL_PIXELFORMAT_ARGB8888,
@@ -90,7 +91,6 @@ int main() {
 
 
     ////////////////////// CAMERA ////////////////////////////
-    
     const float aspect = (float)WIDTH / (float)HEIGHT;
     const float fovY = 60.0f * PI / 180.0f;
     
@@ -163,7 +163,7 @@ int main() {
             screen_x[i] = (int)((ndc_x + 1.0f) * 0.5f * WIDTH);
             screen_y[i] = (int)((1.0f - (ndc_y + 1.0f) * 0.5f) * HEIGHT);
             ndc_z[i] = nz;
-            inv_w[i] = invw;          // <-- la ligne qui manquait
+            inv_w[i] = invw;          
 			normal_world[i] = model.TransformDirection(vertex_normals[i]);
             visible[i] = true;
         }
@@ -194,9 +194,9 @@ int main() {
             int ua = mesh.uvFaces[fidx * 3 + 0];
             int ub = mesh.uvFaces[fidx * 3 + 1];
             int uc = mesh.uvFaces[fidx * 3 + 2];
-            UV uva = (ua >= 0) ? mesh.uvs[ua] : UV(0, 0);
-            UV uvb = (ub >= 0) ? mesh.uvs[ub] : UV(0, 0);
-            UV uvc = (uc >= 0) ? mesh.uvs[uc] : UV(0, 0);
+            Maths::UV uva = (ua >= 0) ? mesh.uvs[ua] : Maths::UV(0, 0);
+            Maths::UV uvb = (ub >= 0) ? mesh.uvs[ub] : Maths::UV(0, 0);
+            Maths::UV uvc = (uc >= 0) ? mesh.uvs[uc] : Maths::UV(0, 0);
 
 
             // Rasterisation : tout ce qu'il faut par sommet + texture + L et 

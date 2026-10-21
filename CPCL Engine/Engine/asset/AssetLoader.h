@@ -21,18 +21,18 @@
 #include <vector>
 
 
-struct UV
-{
-    float x, y;
-    UV() : x(0), y(0) {}
-	UV(float x, float y) : x(x), y(y) {}
-};
+//struct UV
+//{
+//    float x, y;
+//    UV() : x(0), y(0) {}
+//	UV(float x, float y) : x(x), y(y) {}
+//};
 
  struct Mesh {
     std::vector<Maths::Vec3_SSE> verts;
     std::vector<int> faces;    // 3 ints per face: v0, v1, v2 (0-based)
     std::vector<int> uvFaces;    // 3 ints per face: v0, v1, v2 (0-based)
-	std::vector<UV> uvs;        // 1 UV per vertex
+	std::vector<Maths::UV> uvs;        // 1 UV per vertex
     int vertCount() const { return (int)verts.size(); }
     int faceCount() const { return (int)faces.size() / 3; }
 	int uvCount() const { return (int)uvs.size(); }
@@ -93,7 +93,7 @@ inline bool mesh_load(const char* path, Mesh& out) {
 
         else if (line[0] == 'v' && line[1] == 't' && line[2] == ' ') {
             // a texture coordinate: two floats
-            UV t;
+            Maths::UV t;
             if (sscanf(line + 3, "%f %f", &t.x, &t.y) >= 2) {
                 out.uvs.push_back(t);
             }
