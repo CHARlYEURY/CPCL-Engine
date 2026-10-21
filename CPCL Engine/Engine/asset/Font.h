@@ -18,7 +18,7 @@ private:
 
 public:
 
-	Font() {}
+	Font();
 
 	TTF_Font* getFont(uint16_t fontSize = 14);
 
