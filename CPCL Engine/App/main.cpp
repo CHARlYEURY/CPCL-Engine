@@ -194,9 +194,9 @@ int main() {
             int ua = mesh.uvFaces[fidx * 3 + 0];
             int ub = mesh.uvFaces[fidx * 3 + 1];
             int uc = mesh.uvFaces[fidx * 3 + 2];
-            UV uva = (ua >= 0) ? mesh.uvs[ua] : UV(0, 0);
-            UV uvb = (ub >= 0) ? mesh.uvs[ub] : UV(0, 0);
-            UV uvc = (uc >= 0) ? mesh.uvs[uc] : UV(0, 0);
+            Maths::UV uva = (ua >= 0) ? mesh.uvs[ua] : Maths::UV(0, 0);
+            Maths::UV uvb = (ub >= 0) ? mesh.uvs[ub] : Maths::UV(0, 0);
+            Maths::UV uvc = (uc >= 0) ? mesh.uvs[uc] : Maths::UV(0, 0);
 
 
             // Rasterisation : tout ce qu'il faut par sommet + texture + L et 

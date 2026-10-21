@@ -110,9 +110,9 @@ void ZBuffer::compute_face_normals(const Mesh& mesh, std::vector<Maths::Vec3_SSE
 // rasterise un triangle avec Z-test, texture perspective-correcte et Phong
 // x,y = coords écran (entières) ; z = profondeur NDC ; iw = 1/w (clip space), ça devrait pas être la, mais je me suis emeler les peinceau sur la structure, donc je verrais durant le clean 
 void ZBuffer::draw_triangle_zbuffer(
-    int x0, int y0, float z0, float iw0, UV uv0, Maths::Vec3_SSE n0,
-    int x1, int y1, float z1, float iw1, UV uv1, Maths::Vec3_SSE n1,
-    int x2, int y2, float z2, float iw2, UV uv2, Maths::Vec3_SSE n2, Rasterizer& rtz, FrameBuffer& fb, const Texture& tex, Maths::Vec3_SSE L, Maths::Vec3_SSE H)
+    int x0, int y0, float z0, float iw0, Maths::UV uv0, Maths::Vec3_SSE n0,
+    int x1, int y1, float z1, float iw1, Maths::UV uv1, Maths::Vec3_SSE n1,
+    int x2, int y2, float z2, float iw2, Maths::UV uv2, Maths::Vec3_SSE n2, Rasterizer& rtz, FrameBuffer& fb, const Texture& tex, Maths::Vec3_SSE L, Maths::Vec3_SSE H)
 {
     // 2x l'aire signée du triangle (v0, v1, v2). Le signe donne son sens de rotation
     int area = edge(x0, y0, x1, y1, x2, y2);
