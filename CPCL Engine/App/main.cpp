@@ -8,6 +8,7 @@
 #include "asset/AssetLoader.h"
 #include "renderer/Z_buffer.h"
 #include "asset/textureLoader.h"
+#include "renderer/clip.h"
 
 
  const int WIDTH = 800;
@@ -106,6 +107,7 @@ int main() {
    
 	
     // Données par sommet, allouées une fois
+    
     const int vertCount = mesh.vertCount();
     std::vector<int>   screen_x(vertCount);
     std::vector<int>   screen_y(vertCount);
@@ -113,6 +115,7 @@ int main() {
     std::vector<float> inv_w(vertCount);    // 1/w pour la correction de perspective
     std::vector<Maths::Vec3_SSE> normal_world(vertCount);
     std::vector<char>  visible(vertCount);
+    std::vector<Maths::Vec4_SSE> clip_v(vertCount);
 
 
     /////////////////////// RUN /////////////////////
@@ -130,14 +133,18 @@ int main() {
         double seconds = (double)(SDL_GetPerformanceCounter() - start) / (double)freq;
         float t = (float)seconds;
 
-
+        
 
         // Matrice modèle : se lit de droite à gauche → d'abord RotationX, puis RotationY
         Maths::Matrix4x4_SSE model = Maths::Matrix4x4_SSE::RotationY(t * 0.8f) *  Maths::Matrix4x4_SSE::RotationX(t * 0.5f);
         Maths::Matrix4x4_SSE mvp = projection * (view * model);
         Maths::Vec4_SSE vert;
-
-       
+        Maths::Vec4_SSE clip;
+        
+       for (int i = 0; i < mesh.vertCount(); i++) {
+            clip_v[i] = mvp * clip.FromPoint(mesh.verts[i]);
+            normal_world[i] = model.TransformDirection(vertex_normals[i]);
+        }
 
 
         // Project every vertex once. We store NDC z (clip.z / clip.w):
