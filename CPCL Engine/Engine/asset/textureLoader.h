@@ -13,3 +13,4 @@ struct Texture
 };
 
 bool texture_load(const char* path, Texture& out);
+uint32_t texture_sample_bilinear(const Texture& tex, float u, float v);

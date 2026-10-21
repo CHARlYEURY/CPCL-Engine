@@ -21,12 +21,12 @@
 #include <vector>
 
 
-struct UV
-{
-    float x, y;
-    UV() : x(0), y(0) {}
-	UV(float x, float y) : x(x), y(y) {}
-};
+//struct UV
+//{
+//    float x, y;
+//    UV() : x(0), y(0) {}
+//	UV(float x, float y) : x(x), y(y) {}
+//};
 
  struct Mesh {
     std::vector<Maths::Vec3_SSE> verts;

@@ -78,3 +78,46 @@ bool texture_load(const char* path, Texture& out)
 
     return true;
 }
+
+uint32_t texture_sample_bilinear(const Texture& tex, float u, float v)
+{
+    u = u - floorf(u);
+    v = v - floorf(v);
+
+    float fx = u * tex.width - 1;
+    float fy = (1 - v) * tex.height - 1;
+
+    int   x0 = (int)floorf(fx);
+    int   y0 = (int)floorf(fy);
+    int   x1 = x0 + 1;
+    int   y1 = y0 + 1;
+    float tx = fx - (float)x0; 
+    float ty = fy - (float)y0;
+
+    if (x0 < 0) x0 = 0; if (x0 >= tex.width)  x0 = tex.width - 1;
+    if (y0 < 0) y0 = 0; if (y0 >= tex.height) y0 = tex.height - 1;
+    if (x1 < 0) x1 = 0; if (x1 >= tex.width)  x1 = tex.width - 1;
+    if (y1 < 0) y1 = 0; if (y1 >= tex.height) y1 = tex.height - 1;
+
+    uint32_t c00 = tex.pixels[y0 * tex.width + x0];
+    uint32_t c10 = tex.pixels[y0 * tex.width + x1];
+    uint32_t c01 = tex.pixels[y1 * tex.width + x0];
+    uint32_t c11 = tex.pixels[y1 * tex.width + x1];
+
+    float w00 = (1.0f - tx) * (1.0f - ty);
+    float w10 = tx * (1.0f - ty);
+    float w01 = (1.0f - tx) * ty;
+    float w11 = tx * ty;
+
+
+    float r = w00 * ((c00 >> 16) & 0xFF) + w10 * ((c10 >> 16) & 0xFF)
+        + w01 * ((c01 >> 16) & 0xFF) + w11 * ((c11 >> 16) & 0xFF);
+    float g = w00 * ((c00 >> 8) & 0xFF) + w10 * ((c10 >> 8) & 0xFF)
+        + w01 * ((c01 >> 8) & 0xFF) + w11 * ((c11 >> 8) & 0xFF);
+    float b = w00 * (c00 & 0xFF) + w10 * (c10 & 0xFF)
+        + w01 * (c01 & 0xFF) + w11 * (c11 & 0xFF);
+
+    return ((uint32_t)0xFFu << 24)
+        | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b;
+   
+}
