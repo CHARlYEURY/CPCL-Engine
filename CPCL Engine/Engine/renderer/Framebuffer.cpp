@@ -37,6 +37,11 @@ const uint32_t* FrameBuffer::Data() const
     return pixels.data();
 }
 
+uint32_t* FrameBuffer::Data()
+{
+    return pixels.data();
+}
+
 bool FrameBuffer::SavePPM(const std::string& path) const
 {
     std::ofstream file(path, std::ios::binary);
