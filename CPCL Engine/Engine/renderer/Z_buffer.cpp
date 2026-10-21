@@ -206,5 +206,30 @@ void ZBuffer::draw_triangle_zbuffer(
     }
 }
 
+void ZBuffer::project_and_draw(const clip_vertex tri[3], const Texture& tex, const Maths::Vec3_SSE& L, const Maths::Vec3_SSE& H, ZBuffer& zb, Rasterizer& rtz, FrameBuffer& fb)
+{
+
+    const int W = fb.getWidth();
+    const int Ht = fb.getHeight();
+    int sx[3], sy[3];
+    float nz[3], iw[3];
+
+    for (int k = 0; k < 3; k++) {
+        const float inv = 1.0f / tri[k].clip.reg.m128_f32[3];
+        sx[k] = (int)((tri[k].clip.reg.m128_f32[0] * inv + 1.0f) * 0.5f * W);
+        sy[k] = (int)((1.0f - (tri[k].clip.reg.m128_f32[1] * inv + 1.0f) * 0.5f) * Ht);
+        nz[k] = tri[k].clip.reg.m128_f32[2] * inv;
+        iw[k] = inv;
+    }
+
+    if (zb.edge(sx[0], sy[0], sx[1], sy[1], sx[2], sy[2]) >= 0) return;   // back-face cull
+
+    zb.draw_triangle_zbuffer(
+        sx[0], sy[0], nz[0], iw[0], tri[0].uv, tri[0].normal,
+        sx[1], sy[1], nz[1], iw[1], tri[1].uv, tri[1].normal,
+        sx[2], sy[2], nz[2], iw[2], tri[2].uv, tri[2].normal,
+        rtz, fb, tex, L, H);
+}
+
 
 

@@ -98,7 +98,7 @@ int main() {
     const Maths::Matrix4x4_SSE projection = Maths::Matrix4x4_SSE::Perspective(fovY, aspect,
         0.1f, 100.0f);
    
-    const auto eye = Maths::Vec3_SSE(0, 0, 3);
+    const auto eye = Maths::Vec3_SSE(0, 0, 0.2);
     const auto target = Maths::Vec3_SSE(0, 0, 0);
     const auto  up = Maths::Vec3_SSE(0, 1, 0);
     const auto view = Maths::Matrix4x4_SSE::LookAt(eye, target, up);
@@ -180,38 +180,24 @@ int main() {
 
 		int culled = 0;
 
-        // Fill every triangle. Order no longer matters: the depth
-        // test, not the draw order, decides what ends up visible.
+        Maths::Vec4_SSE point2;
         for (int fidx = 0; fidx < mesh.faceCount(); fidx++) {
-            int a = mesh.faces[fidx * 3 + 0];
-            int b = mesh.faces[fidx * 3 + 1];
-            int c = mesh.faces[fidx * 3 + 2];
-            if (!visible[a] || !visible[b] || !visible[c]) continue;
+            clip_vertex tri[3];
+            for (int k = 0; k < 3; k++) {
+                int vi = mesh.faces[fidx * 3 + k];
+                int ti = mesh.uvFaces[fidx * 3 + k];
+                tri[k].clip = mvp * point2.FromPoint(mesh.verts[vi]);
+                tri[k].uv = (ti >= 0) ? mesh.uvs[ti] : Maths::UV(0, 0);
+                tri[k].normal = model.TransformDirection(vertex_normals[vi]);
+            }
 
-            // Aire signée à l'écran : sert à décider si le triangle nous fait face
-            int area = zb.edge(screen_x[a], screen_y[a], screen_x[b], screen_y[b], screen_x[c], screen_y[c]);
+            clip_vertex out[6];
+            int n_tris = 0;
+            clip_triangle_near(tri[0], tri[1], tri[2], out, &n_tris);
 
-
-            // Back-face culling. Avec y vers le bas, un triangle CCW dans le mesh a une
-            // aire NÉGATIVE : on garde area < 0, on jette les faces de dos (et area == 0)
-            if (area >= 0) { culled++; continue; }
-
-            // L'OBJ a deux jeux d'indices distincts : positions (faces) et UV (uvFaces)
-            // -1 = pas d'UV pour ce coin -> on met (0,0)
-            int ua = mesh.uvFaces[fidx * 3 + 0];
-            int ub = mesh.uvFaces[fidx * 3 + 1];
-            int uc = mesh.uvFaces[fidx * 3 + 2];
-            Maths::UV uva = (ua >= 0) ? mesh.uvs[ua] : Maths::UV(0, 0);
-            Maths::UV uvb = (ub >= 0) ? mesh.uvs[ub] : Maths::UV(0, 0);
-            Maths::UV uvc = (uc >= 0) ? mesh.uvs[uc] : Maths::UV(0, 0);
-
-
-            // Rasterisation : tout ce qu'il faut par sommet + texture + L et 
-            zb.draw_triangle_zbuffer(
-                screen_x[a], screen_y[a], ndc_z[a], inv_w[a], uva, normal_world[a],
-                screen_x[b], screen_y[b], ndc_z[b], inv_w[b], uvb, normal_world[b],
-				screen_x[c], screen_y[c], ndc_z[c], inv_w[c], uvc, normal_world[c], 
-                rtz, fb, tex, light, half_vec);
+            for (int i = 0; i < n_tris; i++) {
+                zb.project_and_draw(&out[i * 3], tex, light, half_vec, zb, rtz, fb);
+            }
         }
 
 

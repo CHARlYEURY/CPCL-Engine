@@ -4,6 +4,7 @@
 #include "asset/textureLoader.h"
 #include "asset/AssetLoader.h"
 #include <vector>
+#include "clip.h"
 
 class ZBuffer
 {
@@ -31,5 +32,9 @@ public:
 		int x1, int y1, float z1, float iw1, Maths::UV uv1, Maths::Vec3_SSE n1,
 		int x2, int y2, float z2, float iw2, Maths::UV uv2, Maths::Vec3_SSE n2, Rasterizer& rtz, FrameBuffer& fb, const Texture& tex, Maths::Vec3_SSE L, Maths::Vec3_SSE H);
 
-	void project_and_draw(const clip_vertex* tri, const Texture* tex, vec3 L, vec3 H);
+	void project_and_draw(const clip_vertex tri[3],
+		const Texture& tex,
+		const Maths::Vec3_SSE& L,
+		const Maths::Vec3_SSE& H,
+		ZBuffer& zb, Rasterizer& rtz, FrameBuffer& fb);
 };
