@@ -109,7 +109,7 @@ int main() {
     const Maths::Matrix4x4_SSE projection = Maths::Matrix4x4_SSE::Perspective(fovY, aspect,
         0.1f, 100.0f);
    
-    const auto eye = Maths::Vec3_SSE(0, 0, 0.2);
+    const auto eye = Maths::Vec3_SSE(0, 0, 3);
     const auto target = Maths::Vec3_SSE(0, 0, 0);
     const auto  up = Maths::Vec3_SSE(0, 1, 0);
     const auto view = Maths::Matrix4x4_SSE::LookAt(eye, target, up);

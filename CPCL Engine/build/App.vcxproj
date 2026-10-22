@@ -65,28 +65,32 @@
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <LocalDebuggerWorkingDirectory Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/Debug</LocalDebuggerWorkingDirectory>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\build\Release\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">App.dir\Release\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">App</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+    <LocalDebuggerWorkingDirectory Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/Release</LocalDebuggerWorkingDirectory>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\build\MinSizeRel\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">App.dir\MinSizeRel\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">App</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
+    <LocalDebuggerWorkingDirectory Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/MinSizeRel</LocalDebuggerWorkingDirectory>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\build\RelWithDebInfo\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">App.dir\RelWithDebInfo\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">App</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
+    <LocalDebuggerWorkingDirectory Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/RelWithDebInfo</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL2\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -105,10 +109,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL2\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL2\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -116,9 +120,27 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message></Message>
+      <Message>		</Message>
       <Command>setlocal
-"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/ThirdParty/SDL2/lib/x64/SDL3.dll" "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/Debug"
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/ThirdParty/SDL3/lib/x64/SDL3.dll" "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/Debug"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/ThirdParty/SDL3/SDL3_ttf/lib/x64/SDL3_ttf.dll" "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/Debug"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_directory "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/Assets" "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/Debug/Assets"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -128,7 +150,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>Debug\Engine.lib;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL2\lib\x64\SDL3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>Debug\Engine.lib;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\lib\x64\SDL3.lib;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\lib\x64\SDL3_ttf.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -143,7 +165,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL2\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -163,10 +185,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL2\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL2\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -174,9 +196,27 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message></Message>
+      <Message>		</Message>
       <Command>setlocal
-"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/ThirdParty/SDL2/lib/x64/SDL3.dll" "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/Release"
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/ThirdParty/SDL3/lib/x64/SDL3.dll" "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/Release"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/ThirdParty/SDL3/SDL3_ttf/lib/x64/SDL3_ttf.dll" "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/Release"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_directory "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/Assets" "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/Release/Assets"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -186,7 +226,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>Release\Engine.lib;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL2\lib\x64\SDL3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>Release\Engine.lib;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\lib\x64\SDL3.lib;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\lib\x64\SDL3_ttf.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -201,7 +241,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL2\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -221,10 +261,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL2\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL2\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -232,9 +272,27 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message></Message>
+      <Message>		</Message>
       <Command>setlocal
-"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/ThirdParty/SDL2/lib/x64/SDL3.dll" "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/MinSizeRel"
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/ThirdParty/SDL3/lib/x64/SDL3.dll" "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/MinSizeRel"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/ThirdParty/SDL3/SDL3_ttf/lib/x64/SDL3_ttf.dll" "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/MinSizeRel"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_directory "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/Assets" "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/MinSizeRel/Assets"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -244,7 +302,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>MinSizeRel\Engine.lib;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL2\lib\x64\SDL3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>MinSizeRel\Engine.lib;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\lib\x64\SDL3.lib;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\lib\x64\SDL3_ttf.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -259,7 +317,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL2\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -278,10 +336,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL2\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL2\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -289,9 +347,27 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message></Message>
+      <Message>		</Message>
       <Command>setlocal
-"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/ThirdParty/SDL2/lib/x64/SDL3.dll" "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/RelWithDebInfo"
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/ThirdParty/SDL3/lib/x64/SDL3.dll" "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/RelWithDebInfo"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/ThirdParty/SDL3/SDL3_ttf/lib/x64/SDL3_ttf.dll" "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/RelWithDebInfo"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_directory "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/Assets" "C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/RelWithDebInfo/Assets"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -301,7 +377,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>RelWithDebInfo\Engine.lib;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL2\lib\x64\SDL3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>RelWithDebInfo\Engine.lib;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\lib\x64\SDL3.lib;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\lib\x64\SDL3_ttf.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>

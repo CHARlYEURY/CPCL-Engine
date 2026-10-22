@@ -31,22 +31,22 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
@@ -62,32 +62,23 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\build\Debug\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Engine.dir\Debug\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Engine</TargetName>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.dll</TargetExt>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\build\Release\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Engine.dir\Release\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Engine</TargetName>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.dll</TargetExt>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\build\MinSizeRel\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Engine.dir\MinSizeRel\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Engine</TargetName>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.dll</TargetExt>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.lib</TargetExt>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\build\RelWithDebInfo\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Engine.dir\RelWithDebInfo\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Engine</TargetName>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.dll</TargetExt>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</LinkIncremental>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.lib</TargetExt>
   </PropertyGroup>
-  <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -100,39 +91,29 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <SupportJustMyCode></SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;CMAKE_INTDIR="Debug";Engine_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;CMAKE_INTDIR=\"Debug\";Engine_EXPORTS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
       <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
-    <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    <Lib>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/Debug/Engine.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/Debug/Engine.pdb</ProgramDataBaseFile>
-      <SubSystem>Console</SubSystem>
-    </Link>
-    <ProjectReference>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
-    </ProjectReference>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -144,41 +125,31 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <SupportJustMyCode></SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";Engine_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\";Engine_EXPORTS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
       <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
-    <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    <Lib>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/Release/Engine.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/Release/Engine.pdb</ProgramDataBaseFile>
-      <SubSystem>Console</SubSystem>
-    </Link>
-    <ProjectReference>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
-    </ProjectReference>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -190,41 +161,31 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <SupportJustMyCode></SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="MinSizeRel";Engine_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"MinSizeRel\";Engine_EXPORTS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
       <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
-    <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    <Lib>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/MinSizeRel/Engine.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/MinSizeRel/Engine.pdb</ProgramDataBaseFile>
-      <SubSystem>Console</SubSystem>
-    </Link>
-    <ProjectReference>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
-    </ProjectReference>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -237,35 +198,25 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <SupportJustMyCode></SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="RelWithDebInfo";Engine_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"RelWithDebInfo\";Engine_EXPORTS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\SDL3\SDL3_ttf\include;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\LibMath;C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\ThirdParty\Stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
       <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
-    <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    <Lib>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/RelWithDebInfo/Engine.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/Users/ceury/Documents/GitHub/CPCL-Engine/CPCL Engine/build/RelWithDebInfo/Engine.pdb</ProgramDataBaseFile>
-      <SubSystem>Console</SubSystem>
-    </Link>
-    <ProjectReference>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
-    </ProjectReference>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <CustomBuild Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\CMakeLists.txt">
@@ -325,7 +276,13 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\asset\FilePath.cpp" />
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\asset\Font.cpp" />
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\asset\TextRenderer.cpp" />
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\asset\textureLoader.cpp" />
     <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\renderer\Framebuffer.cpp" />
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\renderer\Rasterizer.cpp" />
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\renderer\Z_buffer.cpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

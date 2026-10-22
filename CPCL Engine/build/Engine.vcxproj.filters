@@ -1,7 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\asset\FilePath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\asset\Font.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\asset\TextRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\asset\textureLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\renderer\Framebuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\renderer\Rasterizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\renderer\Z_buffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
