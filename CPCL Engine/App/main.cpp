@@ -8,6 +8,9 @@
 #include "asset/AssetLoader.h"
 #include "renderer/Z_buffer.h"
 #include "asset/textureLoader.h"
+#include "asset/Font.h"
+#include "asset/TextRenderer.h"
+#include <memory>
 #include "renderer/clip.h"
 
 
@@ -30,6 +33,14 @@ int main() {
         std::cerr << "SDL_Init: " << SDL_GetError() << "\n";
         return 1;
     }
+
+    // test Font loading
+    if (!TTF_Init()) {
+        std::cerr << "TTF_Init failed: " << SDL_GetError() << "\n";
+    }
+    
+    auto font = std::make_unique<Font>(FontTag("default"), 
+        FilePath("Assets/Fonts", "BILLO___.TTF"));
 
     SDL_Window* window = SDL_CreateWindow("CPU Renderer", WIDTH * SCALE, HEIGHT * SCALE, SDL_WINDOW_TRANSPARENT);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, nullptr);
@@ -118,6 +129,10 @@ int main() {
     std::vector<Maths::Vec4_SSE> clip_v(vertCount);
 
 
+    //Text font
+    SDL_Surface* helloText = text_make_surface(*font, "Hello CPU Engine", 32,
+        SDL_Color{ 255, 255, 255, 255 });
+
     /////////////////////// RUN /////////////////////
     bool running = true;
     while (running)
@@ -128,6 +143,7 @@ int main() {
             if (event.type == SDL_EVENT_QUIT)
                 running = false;
         }
+
 
        
         double seconds = (double)(SDL_GetPerformanceCounter() - start) / (double)freq;
@@ -201,7 +217,7 @@ int main() {
         }
 
 
-
+        text_blit(helloText, fb.Data(), WIDTH, HEIGHT, 10, 10);
 
         // --- Affichage ---
         SDL_UpdateTexture(texture, nullptr, fb.Data(), WIDTH * sizeof(uint32_t));
@@ -229,7 +245,10 @@ int main() {
 
     }
 
-    
+    SDL_DestroySurface(helloText);
+    font.reset();      // détruit la Font -> TTF_CloseFont, AVANT TTF_Quit
+    TTF_Quit();
+    SDL_DestroyTexture(texture);
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

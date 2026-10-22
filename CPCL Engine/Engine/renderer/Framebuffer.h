@@ -30,6 +30,7 @@ public:
 	int getWidth() const;
 	int getHeight() const;
 	const uint32_t* Data() const;
+	uint32_t* Data();
 
 	// Export pour vérifier le rendu sans fenêtre
 	bool SavePPM(const std::string& path) const;
