@@ -6,7 +6,7 @@
 
 #include <string>
 #include <map>
-#include "FilePath.h"
+#include "core/FilePath.h"
 #include <SDL3_ttf/SDL_ttf.h>
 
 class FontTag {
@@ -53,7 +53,7 @@ public:
 	Font(const FontTag& tag, const FilePath& fileName);
 	~Font();
 
-	Font(const Font&) = delete;            // évite un double TTF_CloseFont
+	Font(const Font&) = delete;            // Ã©vite un double TTF_CloseFont
 	Font& operator=(const Font&) = delete;
 
 	TTF_Font* getFont(uint16_t fontSize = 14);

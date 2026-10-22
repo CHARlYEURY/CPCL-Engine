@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include <vector>
 #include <string>
 
@@ -18,9 +19,9 @@ public:
 	FrameBuffer(int width, int height);
 	//FrameBuffer(int mul);
 
-	// Accès en écriture
+	// AccÃ¨s en Ã©criture
 	uint32_t& operator[](size_t idx) { return pixels[idx]; }
-	// Accès en lecture (objets const)
+	// AccÃ¨s en lecture (objets const)
 	const uint32_t& operator[](size_t idx) const { return pixels[idx]; }
 
 
@@ -32,6 +33,6 @@ public:
 	const uint32_t* Data() const;
 	uint32_t* Data();
 
-	// Export pour vérifier le rendu sans fenêtre
+	// Export pour vÃ©rifier le rendu sans fenÃªtre
 	bool SavePPM(const std::string& path) const;
 };

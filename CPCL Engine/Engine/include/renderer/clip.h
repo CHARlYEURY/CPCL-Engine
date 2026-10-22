@@ -2,7 +2,7 @@
 #include <xmmintrin.h>
 #include "Vec3_SSE.h"
 #include "Vec4_SSE.h"
-#include "asset/AssetLoader.h"   // pour UV (adapte le chemin si besoin)
+#include "asset/Mesh.h"   // pour UV
 
 struct clip_vertex {
     Maths::Vec4_SSE clip;     // position clip space (avant division par w)
@@ -22,7 +22,7 @@ inline clip_vertex clip_lerp(const clip_vertex& a, const clip_vertex& b, float t
     return r;
 }
 
-// Distance signée au plan near : >= 0 = devant le plan (visible).
+// Distance signÃ©e au plan near : >= 0 = devant le plan (visible).
 // Convention OpenGL : -w <= z  <=>  z + w >= 0
 inline float clip_near_dist(const clip_vertex& v)
 {

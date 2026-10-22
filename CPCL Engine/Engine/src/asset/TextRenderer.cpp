@@ -11,7 +11,7 @@ SDL_Surface* text_make_surface(Font& font, const std::string& text,
         std::cerr << "TTF_RenderText_Blended: " << SDL_GetError() << "\n";
         return nullptr;
     }
-    // On force le même format que le framebuffer
+    // On force le mÃªme format que le framebuffer
     SDL_Surface* s = SDL_ConvertSurface(raw, SDL_PIXELFORMAT_ARGB8888);
     SDL_DestroySurface(raw);
     return s;

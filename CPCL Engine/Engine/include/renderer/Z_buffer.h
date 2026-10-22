@@ -1,11 +1,8 @@
 #pragma once
-#include "Framebuffer.h"
-#include "Rasterizer.h"
-#include "asset/textureLoader.h"
-#include "asset/AssetLoader.h"
 #include <vector>
-#include "clip.h"
 
+// Ne contient plus que le buffer de profondeur.
+// Le rasterisation est dans Rasterizer, l'éclairage dans Lighting, les normales dans Mesh.
 class ZBuffer
 {
 private:
@@ -18,23 +15,12 @@ public:
 	{
 	}
 
+	// Même principe que FrameBuffer::operator[]
+	float& operator[](size_t idx) { return zbuffer[idx]; }
+	const float& operator[](size_t idx) const { return zbuffer[idx]; }
+
+	int getWidth() const { return Widths; }
+	int getHeight() const { return Heights; }
 
 	void clear_Zbuffer();
-	int clampi(int v, int lo, int hi);
-	int edge(int ax, int ay, int bx, int by, int px, int py);
-	float pow32(float x);
-	uint32_t color_phong(uint32_t texel, float diffuse_k, float spec_k);
-	uint32_t color_scale(uint32_t c, float k);
-	void compute_vertex_normals(const Mesh& mesh, const std::vector<Maths::Vec3_SSE>& face_normals, std::vector<Maths::Vec3_SSE>& out);
-	void compute_face_normals(const Mesh& mesh, std::vector<Maths::Vec3_SSE>& out);
-	void draw_triangle_zbuffer(
-		int x0, int y0, float z0, float iw0, Maths::UV uv0, Maths::Vec3_SSE n0,
-		int x1, int y1, float z1, float iw1, Maths::UV uv1, Maths::Vec3_SSE n1,
-		int x2, int y2, float z2, float iw2, Maths::UV uv2, Maths::Vec3_SSE n2, Rasterizer& rtz, FrameBuffer& fb, const Texture& tex, Maths::Vec3_SSE L, Maths::Vec3_SSE H);
-
-	void project_and_draw(const clip_vertex tri[3],
-		const Texture& tex,
-		const Maths::Vec3_SSE& L,
-		const Maths::Vec3_SSE& H,
-		ZBuffer& zb, Rasterizer& rtz, FrameBuffer& fb);
 };

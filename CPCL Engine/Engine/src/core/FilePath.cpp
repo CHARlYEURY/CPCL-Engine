@@ -1,4 +1,4 @@
-#include "FilePath.h"
+#include "core/FilePath.h"
 
 FilePath::FilePath(const std::string& name) : _path(name) {}
 

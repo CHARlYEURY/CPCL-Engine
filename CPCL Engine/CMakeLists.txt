@@ -4,6 +4,11 @@ project(CPCLEngine LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Les sources sont en UTF-8 (accents dans les commentaires)
+if(MSVC)
+    add_compile_options(/utf-8)
+endif()
+
 set(SDL3_DIR    ${CMAKE_SOURCE_DIR}/ThirdParty/SDL3)
 set(SDL3_TTF_DIR ${SDL3_DIR}/SDL3_ttf)
 
@@ -15,11 +20,11 @@ add_library(Stb INTERFACE)
 target_include_directories(Stb INTERFACE ${CMAKE_SOURCE_DIR}/ThirdParty/Stb)
 
 
-# ---------- Engine (bibliothèque) ----------
+# ---------- Engine (bibliothÃ¨que) ----------
 file(GLOB_RECURSE ENGINE_SOURCES CONFIGURE_DEPENDS Engine/*.cpp)
 add_library(Engine STATIC ${ENGINE_SOURCES})
 target_include_directories(Engine PUBLIC
-    Engine
+    Engine/include
     ${SDL3_DIR}/include
     ${SDL3_TTF_DIR}/include
 )
@@ -28,7 +33,7 @@ target_link_libraries(Engine PUBLIC LibMath)
 target_link_libraries(Engine PUBLIC Stb)
 
 
-# ---------- App (exécutable) ----------
+# ---------- App (exÃ©cutable) ----------
 file(GLOB_RECURSE APP_SOURCES CONFIGURE_DEPENDS App/*.cpp)
 add_executable(App ${APP_SOURCES})
 
@@ -51,7 +56,7 @@ add_custom_command(TARGET App POST_BUILD
         $<TARGET_FILE_DIR:App>
 )
 
-# Copier les assets à côté de l'exécutable
+# Copier les assets Ã  cÃ´tÃ© de l'exÃ©cutable
 add_custom_command(TARGET App POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_SOURCE_DIR}/Assets"
@@ -59,7 +64,7 @@ add_custom_command(TARGET App POST_BUILD
 )
 
 
-# Définir le répertoire de travail pour le débogueur Visual Studio
+# DÃ©finir le rÃ©pertoire de travail pour le dÃ©bogueur Visual Studio
 set_property(TARGET App PROPERTY
     VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:App>"
 )
