@@ -21,35 +21,57 @@
 #pragma warning(pop)
 #endif
 
-uint32_t Texture::Sample(float u, float v) const
-{
-    u = u - std::floor(u);
-    v = v - std::floor(v);
 
-    int x = static_cast<int>(u * static_cast<float>(width));
-    int y = static_cast<int>((1.0f - v) * static_cast<float>(height));
+namespace
+{
+    // Wrap "repeat" d'un indice de pixel
+    inline int WrapIndex(int i, int size)
+    {
+        i %= size;
+        return (i < 0) ? i + size : i;
+    }
+}
+
+uint32_t Texture::GetPixel(int x, int y) const
+{
+    if (pixels.empty())
+        return 0;
 
     if (x < 0) x = 0;
     if (x >= width) x = width - 1;
-
     if (y < 0) y = 0;
     if (y >= height) y = height - 1;
 
     return pixels[static_cast<size_t>(y) * width + x];
 }
 
-bool texture_load(const char* path, Texture& out)
+
+uint32_t Texture::Sample(float u, float v) const
+{
+    if (pixels.empty())
+        return 0;
+
+    u = u - std::floor(u);
+    v = v - std::floor(v);
+
+    int x = static_cast<int>(u * static_cast<float>(width));
+    int y = static_cast<int>((1.0f - v) * static_cast<float>(height));
+
+    return GetPixel(x, y);
+}
+
+bool texture_load(const FilePath& path, Texture& out)
 {
     int w, h, channels;
 
-    uint8_t* data = stbi_load(path, &w, &h, &channels, 4);
+    uint8_t* data = stbi_load(path.getString().c_str(), &w, &h, &channels, 4);
 
     if (!data)
     {
         std::fprintf(
             stderr,
             "texture_load: failed on '%s': %s\n",
-            path,
+            path.getString().c_str(),
             stbi_failure_reason()
         );
 
@@ -58,6 +80,8 @@ bool texture_load(const char* path, Texture& out)
 
     out.width = w;
     out.height = h;
+    out.filename = path;
+    out.isTransparent = false;
     out.pixels.resize(static_cast<size_t>(w) * h);
 
     for (size_t i = 0; i < out.pixels.size(); i++)
@@ -66,6 +90,10 @@ bool texture_load(const char* path, Texture& out)
         uint8_t g = data[i * 4 + 1];
         uint8_t b = data[i * 4 + 2];
         uint8_t a = data[i * 4 + 3];
+
+        // Detection de transparence faite pendant la conversion (un seul passage)
+        if (a != 255)
+            out.isTransparent = true;
 
         out.pixels[i] =
             (static_cast<uint32_t>(a) << 24) |
@@ -79,45 +107,59 @@ bool texture_load(const char* path, Texture& out)
     return true;
 }
 
-uint32_t texture_sample_bilinear(const Texture& tex, float u, float v)
+bool texture_load(const char* path, Texture& out)
 {
-    u = u - floorf(u);
-    v = v - floorf(v);
+    return texture_load(FilePath(path), out);
+}
 
-    float fx = u * tex.width - 1;
-    float fy = (1 - v) * tex.height - 1;
+uint32_t Texture::SampleBilinear(float u, float v) const
+{
+    if (pixels.empty())
+        return 0;
 
-    int   x0 = (int)floorf(fx);
-    int   y0 = (int)floorf(fy);
-    int   x1 = x0 + 1;
-    int   y1 = y0 + 1;
-    float tx = fx - (float)x0; 
-    float ty = fy - (float)y0;
+    u = u - std::floor(u);
+    v = v - std::floor(v);
 
-    if (x0 < 0) x0 = 0; if (x0 >= tex.width)  x0 = tex.width - 1;
-    if (y0 < 0) y0 = 0; if (y0 >= tex.height) y0 = tex.height - 1;
-    if (x1 < 0) x1 = 0; if (x1 >= tex.width)  x1 = tex.width - 1;
-    if (y1 < 0) y1 = 0; if (y1 >= tex.height) y1 = tex.height - 1;
+    // Meme convention que Sample (v inverse), mais decalage de 0.5 pixel
+    // (centre des pixels) au lieu de 1 comme dans l'ancienne version.
+    float fx = u * static_cast<float>(width) - 0.5f;
+    float fy = (1.0f - v) * static_cast<float>(height) - 0.5f;
 
-    uint32_t c00 = tex.pixels[y0 * tex.width + x0];
-    uint32_t c10 = tex.pixels[y0 * tex.width + x1];
-    uint32_t c01 = tex.pixels[y1 * tex.width + x0];
-    uint32_t c11 = tex.pixels[y1 * tex.width + x1];
+    int x0 = static_cast<int>(std::floor(fx));
+    int y0 = static_cast<int>(std::floor(fy));
+    float tx = fx - static_cast<float>(x0);
+    float ty = fy - static_cast<float>(y0);
+
+    // Wrap (repeat) : pas de couture au bord de la texture
+    int x1 = WrapIndex(x0 + 1, width);
+    int y1 = WrapIndex(y0 + 1, height);
+    x0 = WrapIndex(x0, width);
+    y0 = WrapIndex(y0, height);
+
+    uint32_t c00 = pixels[static_cast<size_t>(y0) * width + x0];
+    uint32_t c10 = pixels[static_cast<size_t>(y0) * width + x1];
+    uint32_t c01 = pixels[static_cast<size_t>(y1) * width + x0];
+    uint32_t c11 = pixels[static_cast<size_t>(y1) * width + x1];
 
     float w00 = (1.0f - tx) * (1.0f - ty);
     float w10 = tx * (1.0f - ty);
     float w01 = (1.0f - tx) * ty;
     float w11 = tx * ty;
 
+    auto channel = [&](int shift) -> uint32_t
+        {
+            float c = w00 * static_cast<float>((c00 >> shift) & 0xFF)
+                + w10 * static_cast<float>((c10 >> shift) & 0xFF)
+                + w01 * static_cast<float>((c01 >> shift) & 0xFF)
+                + w11 * static_cast<float>((c11 >> shift) & 0xFF);
+            return static_cast<uint32_t>(c + 0.5f);
+        };
 
-    float r = w00 * ((c00 >> 16) & 0xFF) + w10 * ((c10 >> 16) & 0xFF)
-        + w01 * ((c01 >> 16) & 0xFF) + w11 * ((c11 >> 16) & 0xFF);
-    float g = w00 * ((c00 >> 8) & 0xFF) + w10 * ((c10 >> 8) & 0xFF)
-        + w01 * ((c01 >> 8) & 0xFF) + w11 * ((c11 >> 8) & 0xFF);
-    float b = w00 * (c00 & 0xFF) + w10 * (c10 & 0xFF)
-        + w01 * (c01 & 0xFF) + w11 * (c11 & 0xFF);
+    return (channel(24) << 24) | (channel(16) << 16) | (channel(8) << 8) | channel(0);
+}
 
-    return ((uint32_t)0xFFu << 24)
-        | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b;
-   
+
+uint32_t texture_sample_bilinear(const Texture& tex, float u, float v)
+{
+    return tex.SampleBilinear(u, v);
 }
