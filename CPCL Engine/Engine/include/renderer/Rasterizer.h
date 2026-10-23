@@ -4,6 +4,8 @@
 #include "asset/textureLoader.h"
 #include "Vec3_SSE.h"
 
+struct TileRect { int x0, y0, x1, y1; };   // x1,y1 exclus
+
 class Rasterizer
 {
 private : 
@@ -22,5 +24,5 @@ public :
 	void draw_triangle_phong(
 		int x0, int y0, float z0, float iw0, Maths::UV uv0, Maths::Vec3_SSE n0,
 		int x1, int y1, float z1, float iw1, Maths::UV uv1, Maths::Vec3_SSE n1,
-		int x2, int y2, float z2, float iw2, Maths::UV uv2, Maths::Vec3_SSE n2, const Texture& tex, Maths::Vec3_SSE L, Maths::Vec3_SSE H);
+		int x2, int y2, float z2, float iw2, Maths::UV uv2, Maths::Vec3_SSE n2, const Texture& tex, Maths::Vec3_SSE L, Maths::Vec3_SSE H, const TileRect& r);
 };

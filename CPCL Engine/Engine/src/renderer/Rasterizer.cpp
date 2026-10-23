@@ -53,7 +53,7 @@ uint32_t Rasterizer::shade(int e0, int e1, int e2, int wsum,
 void Rasterizer::draw_triangle_phong(
     int x0, int y0, float z0, float iw0, Maths::UV uv0, Maths::Vec3_SSE n0,
     int x1, int y1, float z1, float iw1, Maths::UV uv1, Maths::Vec3_SSE n1,
-    int x2, int y2, float z2, float iw2, Maths::UV uv2, Maths::Vec3_SSE n2, const Texture& tex, Maths::Vec3_SSE L, Maths::Vec3_SSE H)
+    int x2, int y2, float z2, float iw2, Maths::UV uv2, Maths::Vec3_SSE n2, const Texture& tex, Maths::Vec3_SSE L, Maths::Vec3_SSE H, const TileRect& r)
 {
     // dimensions du zbuffer (c'étaient les membres Widths / Heights de ZBuffer)
     const int Widths = _mZBuffer.getWidth();
@@ -77,11 +77,13 @@ void Rasterizer::draw_triangle_phong(
 
     // a partir d'ici un pixel est dasn le triangle si ses 3 edge functions sont >= 0
 
-    // bounding box du triangle, clampée à l'écran
-    int minx = clampi(x0 < x1 ? (x0 < x2 ? x0 : x2) : (x1 < x2 ? x1 : x2), 0, Widths - 1);
-    int miny = clampi(y0 < y1 ? (y0 < y2 ? y0 : y2) : (y1 < y2 ? y1 : y2), 0, Heights - 1);
-    int maxx = clampi(x0 > x1 ? (x0 > x2 ? x0 : x2) : (x1 > x2 ? x1 : x2), 0, Widths - 1);
-    int maxy = clampi(y0 > y1 ? (y0 > y2 ? y0 : y2) : (y1 > y2 ? y1 : y2), 0, Heights - 1);
+    // avant : clampée à l'écran
+    // après : clampée à la tuile
+    int minx = std::max(r.x0, std::min({ x0, x1, x2 }));
+    int miny = std::max(r.y0, std::min({ y0, y1, y2 }));
+    int maxx = std::min(r.x1 - 1, std::max({ x0, x1, x2 }));
+    int maxy = std::min(r.y1 - 1, std::max({ y0, y1, y2 }));
+    if (minx > maxx || miny > maxy) return;   // triangle hors de la tuile
 
     float inv_area = 1.0f / (float)area;        // division par triangle
 

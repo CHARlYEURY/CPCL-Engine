@@ -127,12 +127,15 @@ int main() {
         Maths::Matrix4x4_SSE model = Maths::Matrix4x4_SSE::RotationY(t * 0.8f) *  Maths::Matrix4x4_SSE::RotationX(t * 0.5f);
         Maths::Matrix4x4_SSE mvp = projection * (view * model);
 
-        renderer.begin_frame(setRGB(16, 16, 24));
+        
 
 		int culled = 0;
 
         // clipping near + projection + back-face culling + rasterisation (voir renderer/Renderer)
+        renderer.begin_frame(setRGB(16, 16, 24));
         renderer.draw_mesh(mesh, vertex_normals, tex, model, mvp, light, half_vec);
+        renderer.end_Frame();
+
 
 
         text_blit(helloText, renderer.framebuffer().Data(), WIDTH, HEIGHT, 10, 10);
