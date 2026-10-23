@@ -53,7 +53,7 @@ uint32_t Rasterizer::shade(int e0, int e1, int e2, int wsum,
 void Rasterizer::draw_triangle_phong(
     int x0, int y0, float z0, float iw0, Maths::UV uv0, Maths::Vec3_SSE n0,
     int x1, int y1, float z1, float iw1, Maths::UV uv1, Maths::Vec3_SSE n1,
-    int x2, int y2, float z2, float iw2, Maths::UV uv2, Maths::Vec3_SSE n2, const Texture& tex, Maths::Vec3_SSE L, Maths::Vec3_SSE H)
+    int x2, int y2, float z2, float iw2, Maths::UV uv2, Maths::Vec3_SSE n2, const Materials& mat, Maths::Vec3_SSE L, Maths::Vec3_SSE H)
 {
     // dimensions du zbuffer (c'étaient les membres Widths / Heights de ZBuffer)
     const int Widths = _mZBuffer.getWidth();
@@ -141,7 +141,7 @@ void Rasterizer::draw_triangle_phong(
 			if (ndoth < 0) ndoth = 0;
 			float specular = std::pow(ndoth, 32.f); // Exponent for shininess
 
-			uint32_t texel = tex.Sample(u,v);
+			uint32_t texel = mat.sampleBaseColor(u,v);
             
             if (z >= _mZBuffer[idx]) continue;   // un pixel plus proche est déjà là
 

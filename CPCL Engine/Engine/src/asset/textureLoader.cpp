@@ -9,6 +9,7 @@
 #define STBI_NO_HDR
 #define STBI_NO_LINEAR
 #define STBI_ONLY_PNG
+#define STBI_ONLY_JPEG
 
 #ifdef _MSC_VER
 #pragma warning(push)

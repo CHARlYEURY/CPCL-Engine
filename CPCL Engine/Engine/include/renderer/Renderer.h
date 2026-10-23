@@ -9,6 +9,7 @@
 #include "asset/textureLoader.h"
 #include "Vec3_SSE.h"
 #include "Matrix4x4_SSE.h"
+#include "asset/Materials.h"
 
 // Possède framebuffer + zbuffer + rasterizer et enchaîne les étapes du pipeline :
 // clipping near -> projection écran -> back-face culling -> rasterisation
@@ -31,7 +32,7 @@ public:
 	// La boucle sur les faces qui était dans main.cpp
 	void draw_mesh(const Mesh& mesh,
 		const std::vector<Maths::Vec3_SSE>& vertex_normals,
-		const Texture& tex,
+		const Materials& mat,
 		const Maths::Matrix4x4_SSE& model,
 		const Maths::Matrix4x4_SSE& mvp,
 		const Maths::Vec3_SSE& light,
@@ -39,7 +40,7 @@ public:
 
 	// Ancienne ZBuffer::project_and_draw
 	void project_and_draw(const clip_vertex tri[3],
-		const Texture& tex,
+		const Materials& mat,
 		const Maths::Vec3_SSE& L,
 		const Maths::Vec3_SSE& H);
 };

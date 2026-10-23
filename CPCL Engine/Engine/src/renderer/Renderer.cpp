@@ -9,7 +9,7 @@ void Renderer::begin_frame(uint32_t clear_color)
 
 void Renderer::draw_mesh(const Mesh& mesh,
     const std::vector<Maths::Vec3_SSE>& vertex_normals,
-    const Texture& tex,
+    const Materials& mat,
     const Maths::Matrix4x4_SSE& model,
     const Maths::Matrix4x4_SSE& mvp,
     const Maths::Vec3_SSE& light,
@@ -31,12 +31,12 @@ void Renderer::draw_mesh(const Mesh& mesh,
         clip_triangle_near(tri[0], tri[1], tri[2], out, &n_tris);
 
         for (int i = 0; i < n_tris; i++) {
-            project_and_draw(&out[i * 3], tex, light, half_vec);
+            project_and_draw(&out[i * 3], mat, light, half_vec);
         }
     }
 }
 
-void Renderer::project_and_draw(const clip_vertex tri[3], const Texture& tex, const Maths::Vec3_SSE& L, const Maths::Vec3_SSE& H)
+void Renderer::project_and_draw(const clip_vertex tri[3], const Materials& mat, const Maths::Vec3_SSE& L, const Maths::Vec3_SSE& H)
 {
 
     const int W = _fb.getWidth();
@@ -58,5 +58,5 @@ void Renderer::project_and_draw(const clip_vertex tri[3], const Texture& tex, co
         sx[0], sy[0], nz[0], iw[0], tri[0].uv, tri[0].normal,
         sx[1], sy[1], nz[1], iw[1], tri[1].uv, tri[1].normal,
         sx[2], sy[2], nz[2], iw[2], tri[2].uv, tri[2].normal,
-        tex, L, H);
+        mat, L, H);
 }

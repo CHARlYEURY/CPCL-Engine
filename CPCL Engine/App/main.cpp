@@ -10,7 +10,7 @@
 #include "asset/TextRenderer.h"
 #include "platform/Window.h"
 #include <memory>
-
+#include "asset/Materials.h"
 
  
  const int WIDTH = 800;
@@ -59,9 +59,17 @@ int main() {
     Renderer renderer(WIDTH, HEIGHT);
 
 
+    auto texMat = std::make_shared<Texture>();
+    if (!texture_load(FilePath("Assets/Materials", "Ground054_1K-JPG_Color.jpg") ,*texMat)) {
+        return -1;
+    }
+    Materials mat("mat", texMat);
 
+    //test
+    auto spotTex = std::make_shared<Texture>();
+    if (!texture_load("Assets/spot_texture.png", *spotTex)) return 1;
 
-
+    Materials spotMat("spot", spotTex);
 
     Mesh mesh;
     if (!mesh_load("Assets/spot.obj", mesh)) return 1;
@@ -132,7 +140,7 @@ int main() {
 		int culled = 0;
 
         // clipping near + projection + back-face culling + rasterisation (voir renderer/Renderer)
-        renderer.draw_mesh(mesh, vertex_normals, tex, model, mvp, light, half_vec);
+        renderer.draw_mesh(mesh, vertex_normals, spotMat, model, mvp, light, half_vec);
 
 
         text_blit(helloText, renderer.framebuffer().Data(), WIDTH, HEIGHT, 10, 10);
