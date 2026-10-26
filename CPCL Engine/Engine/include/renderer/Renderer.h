@@ -11,6 +11,18 @@
 #include "Matrix4x4_SSE.h"
 #include "asset/Materials.h"
 
+
+struct listeDraw
+{
+	const Mesh& mesh;
+	const std::vector<Maths::Vec3_SSE>& vertex_normals;
+	const Materials& mat;
+	const Maths::Matrix4x4_SSE& model;
+	const Maths::Matrix4x4_SSE& mvp;
+	const Maths::Vec3_SSE& light;
+	const Maths::Vec3_SSE& half_vec;
+};
+
 // Possède framebuffer + zbuffer + rasterizer et enchaîne les étapes du pipeline :
 // clipping near -> projection écran -> back-face culling -> rasterisation
 class Renderer
@@ -36,11 +48,19 @@ public:
 		const Maths::Matrix4x4_SSE& model,
 		const Maths::Matrix4x4_SSE& mvp,
 		const Maths::Vec3_SSE& light,
-		const Maths::Vec3_SSE& half_vec);
+		const Maths::Vec3_SSE& half_vec, bool writeDepth = true);
 
 	// Ancienne ZBuffer::project_and_draw
 	void project_and_draw(const clip_vertex tri[3],
 		const Materials& mat,
 		const Maths::Vec3_SSE& L,
-		const Maths::Vec3_SSE& H);
+		const Maths::Vec3_SSE& H, bool writeDepth = true);
+
+	void draw_scene(const std::vector<listeDraw>& scene, const Maths::Vec3_SSE& camera_pos);
+
+	// Position de l'objet en espace monde (extrait de la matrice de modèle ou position centrale)
+// Si ton objet est centré en (0,0,0) local, sa position monde est la colonne de translation de la matrice model :
+	Maths::Vec3_SSE get_position(const Maths::Matrix4x4_SSE& m) {
+		return Maths::Vec3_SSE(m.rows[3].m128_f32[0], m.rows[3].m128_f32[1], m.rows[3].m128_f32[2]);
+	}
 };

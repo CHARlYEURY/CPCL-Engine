@@ -35,3 +35,15 @@ uint32_t color_scale(uint32_t c, float k)
     uint32_t b = (uint32_t)((float)(c & 0xFF) * k);
     return ((uint32_t)0xFFu << 24) | (r << 16) | (g << 8) | b;
 }
+
+uint32_t blend_colors(uint32_t src, uint32_t dst, uint8_t alpha)
+{
+    float a = alpha / 255.0f;
+    float ia = 1.0f - a;
+
+    uint8_t r = (uint8_t)(((src >> 16) & 0xFF) * a + ((dst >> 16) & 0xFF) * ia);
+    uint8_t g = (uint8_t)(((src >> 8) & 0xFF) * a + ((dst >> 8) & 0xFF) * ia);
+    uint8_t b = (uint8_t)((src & 0xFF) * a + (dst & 0xFF) * ia);
+
+    return setRGB(r, g, b);
+}
