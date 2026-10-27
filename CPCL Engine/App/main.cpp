@@ -9,6 +9,8 @@
 #include "asset/Font.h"
 #include "asset/TextRenderer.h"
 #include "platform/Window.h"
+#include "particles/ParticleSystem.h"
+#include "particles/Emitter.h"
 #include <memory>
 
 
@@ -51,7 +53,7 @@ int main() {
     Uint64 last = start;
     double fps_accum = 0.0;
     int    fps_count = 0;
-    char   title[160];
+    char   title[1600];
 
     /////////////////////////////////////////////////////////// pas faire gaffe ////////////////////////////////////////////////////////////
 
@@ -105,6 +107,18 @@ int main() {
     SDL_Surface* helloText = text_make_surface(*font, "Hello CPU Engine", 32,
         SDL_Color{ 255, 255, 255, 255 });
 
+
+    ParticleSystem particles(10000);
+    particles.emitter.position = Maths::Vec3_SSE(0, -1.0f, 0);
+    const float focal = HEIGHT * 0.5f / tanf(fovY * 0.5f);
+    Uint64 lastFrame = start;
+
+
+
+
+
+
+
     /////////////////////// RUN /////////////////////
     bool running = true;
     while (running)
@@ -116,7 +130,10 @@ int main() {
                 running = false;
         }
 
-
+        Uint64 nowF = SDL_GetPerformanceCounter();
+        float sim_dt = std::min(0.05f, (float)((double)(nowF - lastFrame) / (double)freq));
+        lastFrame = nowF;
+        particles.update(sim_dt);
        
         double seconds = (double)(SDL_GetPerformanceCounter() - start) / (double)freq;
         float t = (float)seconds;
@@ -135,7 +152,7 @@ int main() {
         renderer.begin_frame(setRGB(16, 16, 24));
         renderer.draw_mesh(mesh, vertex_normals, tex, model, mvp, light, half_vec);
         renderer.end_Frame();
-
+        renderer.draw_particles(particles, projection * view, focal);
 
 
         text_blit(helloText, renderer.framebuffer().Data(), WIDTH, HEIGHT, 10, 10);
@@ -153,14 +170,14 @@ int main() {
             double fps = (double)fps_count / fps_accum;
             double ms = 1000.0 * fps_accum / (double)fps_count;
             snprintf(title, sizeof title,
-                "Chapter 08 — Backface culling  |  culled %d of %d  |  %.1f FPS  (%.2f ms)",
-               culled, mesh.faceCount(), fps, ms);
+                "Chapter 08 — Backface culling  |  culled %d of %d  |  %.1f FPS  (%.2f ms) | %d particles ",
+               culled, mesh.faceCount(), fps, ms, particles.particles.size());
             window.SetTitle(title);
             fps_accum = 0.0;
             fps_count = 0;
 
         }
-
+        
     }
 
     SDL_DestroySurface(helloText);

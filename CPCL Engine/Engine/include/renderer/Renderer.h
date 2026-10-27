@@ -9,6 +9,7 @@
 #include "asset/textureLoader.h"
 #include "Vec3_SSE.h"
 #include "Matrix4x4_SSE.h"
+#include "particles/ParticleSystem.h"
 #include <atomic>
 #include <thread>
 #include <algorithm>
@@ -50,6 +51,8 @@ public:
 	// fb.Clear + zb.clear_Zbuffer (profondeur remise à « infini »)
 	void begin_frame(uint32_t clear_color);
 	void end_Frame();
+
+	void draw_particles(const ParticleSystem& ps, const Maths::Matrix4x4_SSE& view_proj, float focal_px);
 
 	// La boucle sur les faces qui était dans main.cpp
 	void draw_mesh(const Mesh& mesh,

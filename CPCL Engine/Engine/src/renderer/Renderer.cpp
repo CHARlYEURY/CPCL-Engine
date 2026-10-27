@@ -1,6 +1,18 @@
 #include "renderer/Renderer.h"
 #include "Vec4_SSE.h"
 
+
+
+static uint32_t lerp_color(uint32_t a, uint32_t b, float t)
+{
+    auto ch = [&](int s) {
+        float ca = (float)((a >> s) & 0xFF), cb = (float)((b >> s) & 0xFF);
+        return (uint32_t)(ca + (cb - ca) * t);
+        };
+    return (ch(16) << 16) | (ch(8) << 8) | ch(0);
+}
+
+
 void Renderer::begin_frame(uint32_t clear_color)
 {
     _fb.Clear(clear_color);
@@ -58,6 +70,53 @@ void Renderer::end_Frame()
     worker();                                  // le thread principal travaille aussi
     for (auto& th : pool) th.join();           // on attend que tout soit fini
 }
+
+
+
+void Renderer::draw_particles(const ParticleSystem& ps, const Maths::Matrix4x4_SSE& vp, float focal_px)
+{
+    const int W = _fb.getWidth(), H = _fb.getHeight();
+    Maths::Vec4_SSE tmp;
+
+    for (const Particle& p : ps.particles) {
+        Maths::Vec4_SSE clip = vp * tmp.FromPoint(p.pos);
+        const float w = clip.reg.m128_f32[3];
+        if (w < 0.1f) continue;                              // derrière / trop près de la caméra
+
+        const float inv = 1.0f / w;
+        const int   sx = (int)((clip.reg.m128_f32[0] * inv + 1.0f) * 0.5f * W);
+        const int   sy = (int)((1.0f - (clip.reg.m128_f32[1] * inv + 1.0f) * 0.5f) * H);
+        const float nz = clip.reg.m128_f32[2] * inv;
+        const float radius = std::max(1.0f, p.size * focal_px * inv);
+
+        const float life = p.age / p.lifetime;               // 0 -> 1
+        const uint32_t c = lerp_color(p.colorStart, p.colorEnd, life);
+        const float alpha = 1.0f - life;                     // fondu de sortie
+        const float cr = ((c >> 16) & 0xFF) * alpha;
+        const float cg = ((c >> 8) & 0xFF) * alpha;
+        const float cb = (c & 0xFF) * alpha;
+
+        const int r = (int)radius + 1;
+        const float r2 = radius * radius;
+        for (int y = std::max(0, sy - r); y <= std::min(H - 1, sy + r); y++) {
+            for (int x = std::max(0, sx - r); x <= std::min(W - 1, sx + r); x++) {
+                const float dx = (float)(x - sx), dy = (float)(y - sy);
+                if (dx * dx + dy * dy > r2) continue;        // disque
+                const int idx = y * W + x;
+                if (nz >= _zb[idx]) continue;                // caché par la géométrie (pas d'écriture z)
+
+                const uint32_t d = _fb[idx];
+                const uint32_t nr = std::min(255u, ((d >> 16) & 0xFF) + (uint32_t)cr);
+                const uint32_t ng = std::min(255u, ((d >> 8) & 0xFF) + (uint32_t)cg);
+                const uint32_t nb = std::min(255u, (d & 0xFF) + (uint32_t)cb);
+                _fb[idx] = 0xFF000000u | (nr << 16) | (ng << 8) | nb;
+            }
+        }
+    }
+}
+
+
+
 
 void Renderer::draw_mesh(const Mesh& mesh,
     const std::vector<Maths::Vec3_SSE>& vertex_normals,
