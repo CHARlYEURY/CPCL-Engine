@@ -52,7 +52,7 @@ int main() {
     double fps_accum = 0.0;
     int    fps_count = 0;
     char   title[160];
-
+     
     /////////////////////////////////////////////////////////// pas faire gaffe ////////////////////////////////////////////////////////////
 
     // framebuffer + zbuffer + rasterizer, regroupés dans le Renderer

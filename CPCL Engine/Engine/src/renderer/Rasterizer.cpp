@@ -55,7 +55,7 @@ void Rasterizer::draw_triangle_phong(
     int x1, int y1, float z1, float iw1, Maths::UV uv1, Maths::Vec3_SSE n1,
     int x2, int y2, float z2, float iw2, Maths::UV uv2, Maths::Vec3_SSE n2, const Texture& tex, Maths::Vec3_SSE L, Maths::Vec3_SSE H, const TileRect& r)
 {
-    // dimensions du zbuffer (c'étaient les membres Widths / Heights de ZBuffer)
+    // dimensions du zbuffer
     const int Widths = _mZBuffer.getWidth();
     const int Heights = _mZBuffer.getHeight();
 
@@ -77,8 +77,8 @@ void Rasterizer::draw_triangle_phong(
 
     // a partir d'ici un pixel est dasn le triangle si ses 3 edge functions sont >= 0
 
-    // avant : clampée à l'écran
-    // après : clampée à la tuile
+    
+    // clampée à la tuile
     int minx = std::max(r.x0, std::min({ x0, x1, x2 }));
     int miny = std::max(r.y0, std::min({ y0, y1, y2 }));
     int maxx = std::min(r.x1 - 1, std::max({ x0, x1, x2 }));
