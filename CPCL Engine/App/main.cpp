@@ -9,8 +9,10 @@
 #include "asset/Font.h"
 #include "asset/TextRenderer.h"
 #include "platform/Window.h"
+#include "particles/ParticleSystem.h"
+#include "particles/Emitter.h"
 #include <memory>
-#include "asset/Materials.h"
+
 
  
  const int WIDTH = 800;
@@ -51,7 +53,7 @@ int main() {
     Uint64 last = start;
     double fps_accum = 0.0;
     int    fps_count = 0;
-    char   title[160];
+    char   title[1600];
 
     /////////////////////////////////////////////////////////// pas faire gaffe ////////////////////////////////////////////////////////////
 
@@ -59,43 +61,26 @@ int main() {
     Renderer renderer(WIDTH, HEIGHT);
 
 
-    auto texMat = std::make_shared<Texture>();
-    if (!texture_load(FilePath("Assets/Materials", "Ground054_1K-JPG_Color.jpg") ,*texMat)) {
-        return -1;
-    }
-    Materials mat("mat");
-	mat.setDiffuse(setRGB(255,255,255,128));
 
-    //test
-    auto spotTex = std::make_shared<Texture>();
-    if (!texture_load("Assets/spot_texture.png", *spotTex)) return 1;
 
-    Materials spotMat("spot", spotTex);
-    //spotMat.setDiffuse(setRGB(255, 255, 255, 128));
+
 
     Mesh mesh;
     if (!mesh_load("Assets/spot.obj", mesh)) return 1;
     printf("loaded spot.obj: %d vertices, %d faces\n",
         mesh.vertCount(), mesh.faceCount());
 
-    Mesh mesh2;
-    if (!mesh_load("Assets/spot.obj", mesh2)) return 1;
-    printf("loaded spot.obj: %d vertices, %d faces\n",
-        mesh2.vertCount(), mesh2.faceCount());
+	Texture tex;
+	if (!texture_load("Assets/spot_texture.png", tex)) return 1;
+	printf("loaded spot_texture.png: %d x %d\n", tex.width, tex.height);
 
     std::vector<Maths::Vec3_SSE> face_normals;
     std::vector<Maths::Vec3_SSE> vertex_normals;
-
-    std::vector<Maths::Vec3_SSE> face_normals2;
-    std::vector<Maths::Vec3_SSE> vertex_normals2;
 
     // Normales calculées UNE fois, en espace objet : le mesh est rigide, elles ne
     // changent pas. Seule la rotation du modèle les fera tourner (plus bas)
     compute_face_normals(mesh, face_normals);
     compute_vertex_normals(mesh, face_normals, vertex_normals);
-
-    compute_face_normals(mesh2, face_normals2);
-    compute_vertex_normals(mesh2, face_normals2, vertex_normals2);
 
 
     // Éclairage en espace MONDE. Ces vecteurs pointent VERS la lumière / la caméra
@@ -122,6 +107,18 @@ int main() {
     SDL_Surface* helloText = text_make_surface(*font, "Hello CPU Engine", 32,
         SDL_Color{ 255, 255, 255, 255 });
 
+
+    ParticleSystem particles(10000);
+    particles.emitter.position = Maths::Vec3_SSE(0, -1.0f, 0);
+    const float focal = HEIGHT * 0.5f / tanf(fovY * 0.5f);
+    Uint64 lastFrame = start;
+
+
+
+
+
+
+
     /////////////////////// RUN /////////////////////
     bool running = true;
     while (running)
@@ -133,7 +130,10 @@ int main() {
                 running = false;
         }
 
-
+        Uint64 nowF = SDL_GetPerformanceCounter();
+        float sim_dt = std::min(0.05f, (float)((double)(nowF - lastFrame) / (double)freq));
+        lastFrame = nowF;
+        particles.update(sim_dt);
        
         double seconds = (double)(SDL_GetPerformanceCounter() - start) / (double)freq;
         float t = (float)seconds;
@@ -144,20 +144,16 @@ int main() {
         Maths::Matrix4x4_SSE model = Maths::Matrix4x4_SSE::RotationY(t * 0.8f) *  Maths::Matrix4x4_SSE::RotationX(t * 0.5f);
         Maths::Matrix4x4_SSE mvp = projection * (view * model);
 
-		Maths::Vec3_SSE pointMesh = Maths::Vec3_SSE(0, 0, 1);
-        Maths::Matrix4x4_SSE model2 = Maths::Matrix4x4_SSE::Translation(pointMesh);
-        Maths::Matrix4x4_SSE mvp2 = projection * (view * model2);
-
-        std::vector<listeDraw> scene{
-            {mesh, vertex_normals, spotMat, model, mvp, light, half_vec},
-            {mesh2, vertex_normals2, mat, model2, mvp2, light, half_vec}
-        };
-
-        renderer.begin_frame(setRGB(16, 16, 24));
+        
 
 		int culled = 0;
 
-		renderer.draw_scene(scene, eye);
+        // clipping near + projection + back-face culling + rasterisation (voir renderer/Renderer)
+        renderer.begin_frame(setRGB(16, 16, 24));
+        renderer.draw_mesh(mesh, vertex_normals, tex, model, mvp, light, half_vec);
+        renderer.end_Frame();
+        renderer.draw_particles(particles, projection * view, focal);
+
 
         text_blit(helloText, renderer.framebuffer().Data(), WIDTH, HEIGHT, 10, 10);
 
@@ -174,14 +170,14 @@ int main() {
             double fps = (double)fps_count / fps_accum;
             double ms = 1000.0 * fps_accum / (double)fps_count;
             snprintf(title, sizeof title,
-                "Chapter 08 — Backface culling  |  culled %d of %d  |  %.1f FPS  (%.2f ms)",
-               culled, mesh.faceCount(), fps, ms);
+                "Chapter 08 — Backface culling  |  culled %d of %d  |  %.1f FPS  (%.2f ms) | %d particles ",
+               culled, mesh.faceCount(), fps, ms, particles.particles.size());
             window.SetTitle(title);
             fps_accum = 0.0;
             fps_count = 0;
 
         }
-
+        
     }
 
     SDL_DestroySurface(helloText);

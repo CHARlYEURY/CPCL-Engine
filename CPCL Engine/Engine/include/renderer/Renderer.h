@@ -9,18 +9,18 @@
 #include "asset/textureLoader.h"
 #include "Vec3_SSE.h"
 #include "Matrix4x4_SSE.h"
-#include "asset/Materials.h"
+#include "particles/ParticleSystem.h"
+#include <atomic>
+#include <thread>
+#include <algorithm>
 
-
-struct listeDraw
-{
-	const Mesh& mesh;
-	const std::vector<Maths::Vec3_SSE>& vertex_normals;
-	const Materials& mat;
-	const Maths::Matrix4x4_SSE& model;
-	const Maths::Matrix4x4_SSE& mvp;
-	const Maths::Vec3_SSE& light;
-	const Maths::Vec3_SSE& half_vec;
+struct ScreenTri {
+	int x[3], y[3];
+	float z[3], iw[3];
+	Maths::UV uv[3];
+	Maths::Vec3_SSE n[3];
+	const Texture* tex;
+	Maths::Vec3_SSE L, H;
 };
 
 // Possède framebuffer + zbuffer + rasterizer et enchaîne les étapes du pipeline :
@@ -33,34 +33,39 @@ private:
 	ZBuffer _zb;
 	Rasterizer _rtz;
 
+	std::vector<ScreenTri> _tris;
+	std::vector<std::vector<int>> _bins;   // un bin par tuile : indices dans _tris
+	int _tilesX, _tilesY;
+	static constexpr int TILE = 64;
+
 public:
-	Renderer(int width, int height) : _fb(width, height), _zb(width, height), _rtz(_fb, _zb) {}
+	Renderer(int width, int height) : _fb(width, height), _zb(width, height), _rtz(_fb, _zb) 
+	{
+		_tilesX = (width + TILE - 1) / TILE;
+		_tilesY = (height + TILE - 1) / TILE;
+		_bins.resize(_tilesX * _tilesY);
+	}
 
 	FrameBuffer& framebuffer() { return _fb; }
 
 	// fb.Clear + zb.clear_Zbuffer (profondeur remise à « infini »)
 	void begin_frame(uint32_t clear_color);
+	void end_Frame();
+
+	void draw_particles(const ParticleSystem& ps, const Maths::Matrix4x4_SSE& view_proj, float focal_px);
 
 	// La boucle sur les faces qui était dans main.cpp
 	void draw_mesh(const Mesh& mesh,
 		const std::vector<Maths::Vec3_SSE>& vertex_normals,
-		const Materials& mat,
+		const Texture& tex,
 		const Maths::Matrix4x4_SSE& model,
 		const Maths::Matrix4x4_SSE& mvp,
 		const Maths::Vec3_SSE& light,
-		const Maths::Vec3_SSE& half_vec, bool writeDepth = true);
+		const Maths::Vec3_SSE& half_vec);
 
 	// Ancienne ZBuffer::project_and_draw
 	void project_and_draw(const clip_vertex tri[3],
-		const Materials& mat,
+		const Texture& tex,
 		const Maths::Vec3_SSE& L,
-		const Maths::Vec3_SSE& H, bool writeDepth = true);
-
-	void draw_scene(const std::vector<listeDraw>& scene, const Maths::Vec3_SSE& camera_pos);
+		const Maths::Vec3_SSE& H);
 };
-
-// Position de l'objet en espace monde (extrait de la matrice de modèle ou position centrale)
-	// Si ton objet est centré en (0,0,0) local, sa position monde est la colonne de translation de la matrice model :
-inline Maths::Vec3_SSE get_position(const Maths::Matrix4x4_SSE& m) {
-	return Maths::Vec3_SSE(m.rows[3].m128_f32[0], m.rows[3].m128_f32[1], m.rows[3].m128_f32[2]);
-}
