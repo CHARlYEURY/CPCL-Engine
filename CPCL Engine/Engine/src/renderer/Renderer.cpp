@@ -5,67 +5,15 @@ void Renderer::begin_frame(uint32_t clear_color)
 {
     _fb.Clear(clear_color);
     _zb.clear_Zbuffer();           // profondeur remise à « infini »
-    _tris.clear();
-    for (auto& b : _bins) b.clear();
-}
-
-void Renderer::end_Frame()
-{
-    const int W = _fb.getWidth(), H = _fb.getHeight();
-
-    // 1) binning : à quelles tuiles appartient chaque triangle ?
-    for (int i = 0; i < (int)_tris.size(); i++) {
-        const ScreenTri& s = _tris[i];
-        int minx = std::max(0, std::min({ s.x[0], s.x[1], s.x[2] }));
-        int maxx = std::min(W - 1, std::max({ s.x[0], s.x[1], s.x[2] }));
-        int miny = std::max(0, std::min({ s.y[0], s.y[1], s.y[2] }));
-        int maxy = std::min(H - 1, std::max({ s.y[0], s.y[1], s.y[2] }));
-        if (minx > maxx || miny > maxy) continue;
-
-        for (int ty = miny / TILE; ty <= maxy / TILE; ty++)
-            for (int tx = minx / TILE; tx <= maxx / TILE; tx++)
-                _bins[ty * _tilesX + tx].push_back(i);
-    }
-
-    std::atomic<int> next{ 0 };
-    const int nTiles = _tilesX * _tilesY;
-
-    auto worker = [&]() {
-        for (;;) {
-            int t = next.fetch_add(1);
-            if (t >= nTiles) break;
-
-            int tx = t % _tilesX, ty = t / _tilesX;
-            TileRect r{ tx * TILE, ty * TILE,
-                        std::min((tx + 1) * TILE, W),
-                        std::min((ty + 1) * TILE, H) 
-            };
-
-            for (int i : _bins[t]) {
-                const ScreenTri& s = _tris[i];
-                _rtz.draw_triangle_phong(
-                    s.x[0], s.y[0], s.z[0], s.iw[0], s.uv[0], s.n[0],
-                    s.x[1], s.y[1], s.z[1], s.iw[1], s.uv[1], s.n[1],
-                    s.x[2], s.y[2], s.z[2], s.iw[2], s.uv[2], s.n[2],
-                    *s.tex, s.L, s.H, r);
-            }
-        }
-        };
-
-    const int nThreads = std::max(1u, std::thread::hardware_concurrency());
-    std::vector<std::thread> pool;
-    for (int i = 1; i < nThreads; i++) pool.emplace_back(worker);
-    worker();                                  // le thread principal travaille aussi
-    for (auto& th : pool) th.join();           // on attend que tout soit fini
 }
 
 void Renderer::draw_mesh(const Mesh& mesh,
     const std::vector<Maths::Vec3_SSE>& vertex_normals,
-    const Texture& tex,
+    const Materials& mat,
     const Maths::Matrix4x4_SSE& model,
     const Maths::Matrix4x4_SSE& mvp,
     const Maths::Vec3_SSE& light,
-    const Maths::Vec3_SSE& half_vec)
+    const Maths::Vec3_SSE& half_vec, bool writeDepth)
 {
     Maths::Vec4_SSE point2;
     for (int fidx = 0; fidx < mesh.faceCount(); fidx++) {
@@ -83,12 +31,12 @@ void Renderer::draw_mesh(const Mesh& mesh,
         clip_triangle_near(tri[0], tri[1], tri[2], out, &n_tris);
 
         for (int i = 0; i < n_tris; i++) {
-            project_and_draw(&out[i * 3], tex, light, half_vec);
+            project_and_draw(&out[i * 3], mat, light, half_vec, writeDepth);
         }
     }
 }
 
-void Renderer::project_and_draw(const clip_vertex tri[3], const Texture& tex, const Maths::Vec3_SSE& L, const Maths::Vec3_SSE& H)
+void Renderer::project_and_draw(const clip_vertex tri[3], const Materials& mat, const Maths::Vec3_SSE& L, const Maths::Vec3_SSE& H, bool writeDepth)
 {
 
     const int W = _fb.getWidth();
@@ -106,13 +54,40 @@ void Renderer::project_and_draw(const clip_vertex tri[3], const Texture& tex, co
 
     if (_rtz.edge(sx[0], sy[0], sx[1], sy[1], sx[2], sy[2]) >= 0) return;   // back-face cull
 
-    ScreenTri s;
-    for (int k = 0; k < 3; k++) {
-        s.x[k] = sx[k];  s.y[k] = sy[k];
-        s.z[k] = nz[k];  s.iw[k] = iw[k];
-        s.uv[k] = tri[k].uv;
-        s.n[k] = tri[k].normal;
+    _rtz.draw_triangle_phong(
+        sx[0], sy[0], nz[0], iw[0], tri[0].uv, tri[0].normal,
+        sx[1], sy[1], nz[1], iw[1], tri[1].uv, tri[1].normal,
+        sx[2], sy[2], nz[2], iw[2], tri[2].uv, tri[2].normal,
+        mat, L, H, writeDepth);
+}
+
+void Renderer::draw_scene(const std::vector<listeDraw>& scene,const Maths::Vec3_SSE& camera_pos)
+{
+    for (const auto& items : scene) {
+        if (!items.mat.isTransparent())
+            draw_mesh(items.mesh, items.vertex_normals, items.mat, items.model, items.mvp, items.light, items.half_vec);
     }
-    s.tex = &tex;  s.L = L;  s.H = H;
-    _tris.push_back(s);
+
+	std::vector<const listeDraw*> transparentObjects;
+    for (const auto& items : scene) {
+        if (items.mat.isTransparent()) 
+            transparentObjects.push_back(&items);
+    }
+
+    std::sort(transparentObjects.begin(), transparentObjects.end(),
+        [&camera_pos](const listeDraw* a, const listeDraw* b) {
+            // Extraction de la position monde (dernière colonne de la matrice modèle)
+            Maths::Vec3_SSE posA = get_position(a->model);
+            Maths::Vec3_SSE posB = get_position(b->model);
+
+            // Distance au carré (pas besoin de racine carrée pour comparer)
+            float distA = posA.DistanceSquared(camera_pos);
+            float distB = posB.DistanceSquared(camera_pos);
+            
+            return distA > distB;
+        });
+
+    for (const auto* items : transparentObjects) {
+        draw_mesh(items->mesh, items->vertex_normals, items->mat, items->model, items->mvp, items->light, items->half_vec, false);
+    }
 }
