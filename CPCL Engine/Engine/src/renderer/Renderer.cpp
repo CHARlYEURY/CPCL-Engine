@@ -77,13 +77,13 @@ void Renderer::draw_scene(const std::vector<listeDraw>& scene,const Maths::Vec3_
     std::sort(transparentObjects.begin(), transparentObjects.end(),
         [&camera_pos](const listeDraw* a, const listeDraw* b) {
             // Extraction de la position monde (dernière colonne de la matrice modèle)
-            Maths::Vec3_SSE posA(a->model.rows[3].m128_f32[0], a->model.rows[3].m128_f32[1], a->model.rows[3].m128_f32[2]);
-            Maths::Vec3_SSE posB(b->model.rows[3].m128_f32[0], b->model.rows[3].m128_f32[1], b->model.rows[3].m128_f32[2]);
+            Maths::Vec3_SSE posA = get_position(a->model);
+            Maths::Vec3_SSE posB = get_position(b->model);
 
             // Distance au carré (pas besoin de racine carrée pour comparer)
             float distA = posA.DistanceSquared(camera_pos);
             float distB = posB.DistanceSquared(camera_pos);
-
+            
             return distA > distB;
         });
 

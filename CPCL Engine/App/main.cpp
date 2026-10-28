@@ -65,14 +65,13 @@ int main() {
     }
     Materials mat("mat");
 	mat.setDiffuse(setRGB(255,255,255,128));
-	std::cout << mat.isTransparent() << std::endl;
 
     //test
     auto spotTex = std::make_shared<Texture>();
     if (!texture_load("Assets/spot_texture.png", *spotTex)) return 1;
 
     Materials spotMat("spot", spotTex);
-	std::cout << spotMat.isTransparent() << std::endl;
+    //spotMat.setDiffuse(setRGB(255, 255, 255, 128));
 
     Mesh mesh;
     if (!mesh_load("Assets/spot.obj", mesh)) return 1;
@@ -157,12 +156,6 @@ int main() {
         renderer.begin_frame(setRGB(16, 16, 24));
 
 		int culled = 0;
-
-        // clipping near + projection + back-face culling + rasterisation (voir renderer/Renderer)
-
-        /*renderer.draw_mesh(mesh, vertex_normals, spotMat, model, mvp, light, half_vec);
-
-        renderer.draw_mesh(mesh2, vertex_normals2, mat, model2, mvp2, light, half_vec);*/
 
 		renderer.draw_scene(scene, eye);
 
