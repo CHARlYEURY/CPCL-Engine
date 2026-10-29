@@ -21,7 +21,7 @@ public:
 
 	bool IsValid() const { return _window && _renderer && _texture; }
 	void SetTitle(const char* title);
-
+	SDL_Window* Get() { return _window; }
 	// SDL_UpdateTexture + RenderClear + RenderTexture + RenderPresent
 	void Present(const FrameBuffer& fb);
 

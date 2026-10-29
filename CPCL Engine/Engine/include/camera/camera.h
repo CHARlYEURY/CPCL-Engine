@@ -1,14 +1,16 @@
 #pragma once
 #include "Matrix4x4_SSE.h"
 #include "Vec3_SSE.h"
+#include "SDL3/SDL.h"
 
 class Cam {
 
 private:
 	Maths::Vec3_SSE _position;
-	float _yaw, _pitch = 0.0f;
+	float _yaw = 0.0f;
+	float _pitch = 0.0f;
 	float _speed = 3.0f;
-	float _sensitivity = 0.03f;
+	float _sensitivity = 0.003f;
 
 	Maths::Vec3_SSE _up = Maths::Vec3_SSE(0.0f, 1.0f, 0.0f);
 public:

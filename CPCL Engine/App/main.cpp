@@ -11,6 +11,7 @@
 #include "platform/Window.h"
 #include "particles/ParticleSystem.h"
 #include "particles/Emitter.h"
+#include "camera/camera.h"
 #include <memory>
 
 
@@ -114,7 +115,8 @@ int main() {
     const auto eye = Maths::Vec3_SSE(0, 0, 3);
     const auto target = Maths::Vec3_SSE(0, 0, 0);
     const auto  up = Maths::Vec3_SSE(0, 1, 0);
-    const auto view = Maths::Matrix4x4_SSE::LookAt(eye, target, up);
+    //const auto view = Maths::Matrix4x4_SSE::LookAt(eye, target, up);
+	Cam camera(eye);
     ////////////////////// CAMERA ////////////////////////////
 
 
@@ -129,13 +131,13 @@ int main() {
     Uint64 lastFrame = start;
 
 
-
-
-
+    auto f = camera.forward();
+    printf("forward = %f %f %f\n", f.reg.m128_f32[0], f.reg.m128_f32[1], f.reg.m128_f32[2]);
 
 
     /////////////////////// RUN /////////////////////
     bool running = true;
+	bool isRightMouseButtonDown = false;
     while (running)
     {
         SDL_Event event;
@@ -143,12 +145,33 @@ int main() {
         {
             if (event.type == SDL_EVENT_QUIT)
                 running = false;
+
+            if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
+                if (event.button.button == SDL_BUTTON_RIGHT) {
+                    isRightMouseButtonDown = true;
+                    SDL_SetWindowRelativeMouseMode(window.Get(), true);
+				}
+            }
+            else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+                if (event.button.button == SDL_BUTTON_RIGHT) {
+                    isRightMouseButtonDown = false;
+                    SDL_SetWindowRelativeMouseMode(window.Get(), false);
+                }
+			}
+            if (event.type == SDL_EVENT_MOUSE_MOTION) {
+                if (isRightMouseButtonDown) {
+                    camera.rotate(event.motion.xrel, event.motion.yrel);
+                }
+            }
         }
 
         Uint64 nowF = SDL_GetPerformanceCounter();
         float sim_dt = std::min(0.05f, (float)((double)(nowF - lastFrame) / (double)freq));
         lastFrame = nowF;
         particles.update(sim_dt);
+		if (isRightMouseButtonDown)
+            camera.update(sim_dt);
+		const auto view = camera.viewMatrix();
        
         double seconds = (double)(SDL_GetPerformanceCounter() - start) / (double)freq;
         float t = (float)seconds;
@@ -173,7 +196,7 @@ int main() {
 
         // clipping near + projection + back-face culling + rasterisation (voir renderer/Renderer)
         renderer.begin_frame(setRGB(16, 16, 24));
-        renderer.draw_scene(scene, eye);
+        renderer.draw_scene(scene, camera.position());
         renderer.end_Frame();
         renderer.draw_particles(particles, projection * view, focal);
 
