@@ -166,7 +166,7 @@ int main() {
 
 		int culled = 0;
 
-        std::vector<listeDraw> scene{
+        std::vector<drawItem> scene{
             {mesh, vertex_normals, spotMat, model, mvp, light, half_vec},
             {mesh2, vertex_normals2, mat, model2, mvp2, light, half_vec}
         };

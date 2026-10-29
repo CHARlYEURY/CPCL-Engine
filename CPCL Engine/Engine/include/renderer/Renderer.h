@@ -14,16 +14,8 @@
 #include <thread>
 #include <algorithm>
 
-struct ScreenTri {
-	int x[3], y[3];
-	float z[3], iw[3];
-	Maths::UV uv[3];
-	Maths::Vec3_SSE n[3];
-	const Materials* mat;
-	Maths::Vec3_SSE L, H;
-};
 
-struct listeDraw
+struct drawItem
 {
 	const Mesh& mesh;
 	const std::vector<Maths::Vec3_SSE>& vertex_normals;
@@ -66,21 +58,12 @@ public:
 	void draw_particles(const ParticleSystem& ps, const Maths::Matrix4x4_SSE& view_proj, float focal_px);
 
 	// La boucle sur les faces qui était dans main.cpp
-	void draw_mesh(const Mesh& mesh,
-		const std::vector<Maths::Vec3_SSE>& vertex_normals,
-		const Materials& mat,
-		const Maths::Matrix4x4_SSE& model,
-		const Maths::Matrix4x4_SSE& mvp,
-		const Maths::Vec3_SSE& light,
-		const Maths::Vec3_SSE& half_vec, bool writeDepth = true);
+	void draw_mesh(const drawItem& item, bool writeDepth = true);
 
 	// Ancienne ZBuffer::project_and_draw
-	void project_and_draw(const clip_vertex tri[3],
-		const Materials& mat,
-		const Maths::Vec3_SSE& L,
-		const Maths::Vec3_SSE& H);
+	void project_and_draw(const clip_vertex tri[3], const drawItem& item);
 
-	void draw_scene(const std::vector<listeDraw>& scene, const Maths::Vec3_SSE& camera_pos);
+	void draw_scene(const std::vector<drawItem>& scene, const Maths::Vec3_SSE& camera_pos);
 };
 
 // Position de l'objet en espace monde (extrait de la matrice de modèle ou position centrale)

@@ -7,6 +7,15 @@
 
 struct TileRect { int x0, y0, x1, y1; };   // x1,y1 exclus
 
+struct ScreenTri {
+	int x[3], y[3];
+	float z[3], iw[3];
+	Maths::UV uv[3];
+	Maths::Vec3_SSE n[3];
+	const Materials* mat;
+	Maths::Vec3_SSE L, H;
+};
+
 class Rasterizer
 {
 private : 
@@ -22,8 +31,5 @@ public :
 
 	// rasterise un triangle avec Z-test, texture perspective-correcte et Phong
 	// (framebuffer et zbuffer sont maintenant des membres : plus besoin de les passer en paramètre)
-	void draw_triangle_phong(
-		int x0, int y0, float z0, float iw0, Maths::UV uv0, Maths::Vec3_SSE n0,
-		int x1, int y1, float z1, float iw1, Maths::UV uv1, Maths::Vec3_SSE n1,
-		int x2, int y2, float z2, float iw2, Maths::UV uv2, Maths::Vec3_SSE n2, const Materials& mat, Maths::Vec3_SSE L, Maths::Vec3_SSE H, const TileRect& r, bool writeDepth = true);
+	void draw_triangle_phong(const ScreenTri& tri, const TileRect& r, bool writeDepth = true);
 };

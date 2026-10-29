@@ -50,11 +50,19 @@ uint32_t Rasterizer::shade(int e0, int e1, int e2, int wsum,
 
 // rasterise un triangle avec Z-test, texture perspective-correcte et Phong
 // x,y = coords écran (entières) ; z = profondeur NDC ; iw = 1/w (clip space), ça devrait pas être la, mais je me suis emeler les peinceau sur la structure, donc je verrais durant le clean 
-void Rasterizer::draw_triangle_phong(
-    int x0, int y0, float z0, float iw0, Maths::UV uv0, Maths::Vec3_SSE n0,
-    int x1, int y1, float z1, float iw1, Maths::UV uv1, Maths::Vec3_SSE n1,
-    int x2, int y2, float z2, float iw2, Maths::UV uv2, Maths::Vec3_SSE n2, const Materials& mat, Maths::Vec3_SSE L, Maths::Vec3_SSE H, const TileRect& r, bool writeDepth)
+void Rasterizer::draw_triangle_phong(const ScreenTri& tri, const TileRect& r, bool writeDepth)
 {
+    int x0 = tri.x[0], x1 = tri.x[1], x2 = tri.x[2];
+    int y0 = tri.y[0], y1 = tri.y[1], y2 = tri.y[2];
+
+    float z0 = tri.z[0], z1 = tri.z[1], z2 = tri.z[2];
+    float iw0 = tri.iw[0], iw1 = tri.iw[1], iw2 = tri.iw[2];
+
+    Maths::UV uv0 = tri.uv[0], uv1 = tri.uv[1], uv2 = tri.uv[2];
+    Maths::Vec3_SSE n0 = tri.n[0], n1 = tri.n[1], n2 = tri.n[2];
+
+    Materials mat = *tri.mat;
+
     // dimensions du zbuffer (c'étaient les membres Widths / Heights de ZBuffer)
     const int Widths = _mZBuffer.getWidth();
     const int Heights = _mZBuffer.getHeight();
@@ -132,12 +140,12 @@ void Rasterizer::draw_triangle_phong(
 			N = N.Normalize();
 
             // diffus (Lambert) cos de l'angle normale/lumière, clampé à 0
-			float ndot1 = N.Dot(L);
+			float ndot1 = N.Dot(tri.L);
 			if (ndot1 < 0) ndot1 = 0;
 			float diffuse_k = AMBIENT + (1.0f - AMBIENT) * ndot1;
 
             // spéculaire (Blinn-Phong) N*H puis puissance (brillance = 16)
-			float ndoth = N.Dot(H);
+			float ndoth = N.Dot(tri.H);
 			if (ndoth < 0) ndoth = 0;
 			float specular = std::pow(ndoth, 32.f); // Exponent for shininess
 

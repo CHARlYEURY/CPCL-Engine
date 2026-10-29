@@ -2,7 +2,6 @@
 #include "Vec4_SSE.h"
 
 
-
 static uint32_t lerp_color(uint32_t a, uint32_t b, float t)
 {
     auto ch = [&](int s) {
@@ -11,7 +10,6 @@ static uint32_t lerp_color(uint32_t a, uint32_t b, float t)
         };
     return (ch(16) << 16) | (ch(8) << 8) | ch(0);
 }
-
 
 void Renderer::begin_frame(uint32_t clear_color)
 {
@@ -54,12 +52,7 @@ void Renderer::end_Frame()
             };
 
             for (int i : _bins[t]) {
-                const ScreenTri& s = _tris[i];
-                _rtz.draw_triangle_phong(
-                    s.x[0], s.y[0], s.z[0], s.iw[0], s.uv[0], s.n[0],
-                    s.x[1], s.y[1], s.z[1], s.iw[1], s.uv[1], s.n[1],
-                    s.x[2], s.y[2], s.z[2], s.iw[2], s.uv[2], s.n[2],
-                    *s.mat, s.L, s.H, r, true);
+                _rtz.draw_triangle_phong(_tris[i], r, true);
             }
         }
         };
@@ -70,8 +63,6 @@ void Renderer::end_Frame()
     worker();                                  // le thread principal travaille aussi
     for (auto& th : pool) th.join();           // on attend que tout soit fini
 }
-
-
 
 void Renderer::draw_particles(const ParticleSystem& ps, const Maths::Matrix4x4_SSE& vp, float focal_px)
 {
@@ -115,26 +106,18 @@ void Renderer::draw_particles(const ParticleSystem& ps, const Maths::Matrix4x4_S
     }
 }
 
-
-
-
-void Renderer::draw_mesh(const Mesh& mesh,
-    const std::vector<Maths::Vec3_SSE>& vertex_normals,
-    const Materials& mat,
-    const Maths::Matrix4x4_SSE& model,
-    const Maths::Matrix4x4_SSE& mvp,
-    const Maths::Vec3_SSE& light,
-    const Maths::Vec3_SSE& half_vec, bool writeDepth)
+void Renderer::draw_mesh(const drawItem& item, bool writeDepth)
 {
+    
     Maths::Vec4_SSE point2;
-    for (int fidx = 0; fidx < mesh.faceCount(); fidx++) {
+    for (int fidx = 0; fidx < item.mesh.faceCount(); fidx++) {
         clip_vertex tri[3];
         for (int k = 0; k < 3; k++) {
-            int vi = mesh.faces[fidx * 3 + k];
-            int ti = mesh.uvFaces[fidx * 3 + k];
-            tri[k].clip = mvp * point2.FromPoint(mesh.verts[vi]);
-            tri[k].uv = (ti >= 0) ? mesh.uvs[ti] : Maths::UV(0, 0);
-            tri[k].normal = model.TransformDirection(vertex_normals[vi]);
+            int vi = item.mesh.faces[fidx * 3 + k];
+            int ti = item.mesh.uvFaces[fidx * 3 + k];
+            tri[k].clip = item.mvp * point2.FromPoint(item.mesh.verts[vi]);
+            tri[k].uv = (ti >= 0) ? item.mesh.uvs[ti] : Maths::UV(0, 0);
+            tri[k].normal = item.model.TransformDirection(item.vertex_normals[vi]);
         }
 
         clip_vertex out[6];
@@ -142,12 +125,12 @@ void Renderer::draw_mesh(const Mesh& mesh,
         clip_triangle_near(tri[0], tri[1], tri[2], out, &n_tris);
 
         for (int i = 0; i < n_tris; i++) {
-            project_and_draw(&out[i * 3], mat, light, half_vec);
+            project_and_draw(&out[i * 3], item);
         }
     }
 }
 
-void Renderer::project_and_draw(const clip_vertex tri[3], const Materials& mat, const Maths::Vec3_SSE& L, const Maths::Vec3_SSE& H)
+void Renderer::project_and_draw(const clip_vertex tri[3], const drawItem& item)
 {
 
     const int W = _fb.getWidth();
@@ -172,25 +155,25 @@ void Renderer::project_and_draw(const clip_vertex tri[3], const Materials& mat, 
         s.uv[k] = tri[k].uv;
         s.n[k] = tri[k].normal;
     }
-    s.mat = &mat;  s.L = L;  s.H = H;
+    s.mat = &item.mat;  s.L = item.light;  s.H = item.half_vec;
     _tris.push_back(s);
 }
 
-void Renderer::draw_scene(const std::vector<listeDraw>& scene,const Maths::Vec3_SSE& camera_pos)
+void Renderer::draw_scene(const std::vector<drawItem>& scene,const Maths::Vec3_SSE& camera_pos)
 {
     for (const auto& items : scene) {
         if (!items.mat.isTransparent())
-            draw_mesh(items.mesh, items.vertex_normals, items.mat, items.model, items.mvp, items.light, items.half_vec);
+            draw_mesh(items);
     }
 
-	std::vector<const listeDraw*> transparentObjects;
+	std::vector<const drawItem*> transparentObjects;
     for (const auto& items : scene) {
         if (items.mat.isTransparent()) 
             transparentObjects.push_back(&items);
     }
 
     std::sort(transparentObjects.begin(), transparentObjects.end(),
-        [&camera_pos](const listeDraw* a, const listeDraw* b) {
+        [&camera_pos](const drawItem* a, const drawItem* b) {
             // Extraction de la position monde (dernière colonne de la matrice modèle)
             Maths::Vec3_SSE posA = get_position(a->model);
             Maths::Vec3_SSE posB = get_position(b->model);
@@ -203,6 +186,6 @@ void Renderer::draw_scene(const std::vector<listeDraw>& scene,const Maths::Vec3_
         });
 
     for (const auto* items : transparentObjects) {
-        draw_mesh(items->mesh, items->vertex_normals, items->mat, items->model, items->mvp, items->light, items->half_vec, false);
+        draw_mesh(*items, false);
     }
 }
