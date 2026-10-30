@@ -1,25 +1,49 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\asset\FilePath.cpp">
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\src\asset\AssetLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\asset\Font.cpp">
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\src\asset\Font.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\asset\TextRenderer.cpp">
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\src\asset\Materials.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\asset\textureLoader.cpp">
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\src\asset\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\renderer\Framebuffer.cpp">
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\src\asset\TextRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\renderer\Rasterizer.cpp">
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\src\asset\textureLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\renderer\Z_buffer.cpp">
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\src\core\FilePath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\src\particles\Emitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\src\particles\ParticleSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\src\platform\Window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\src\renderer\Framebuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\src\renderer\Lighting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\src\renderer\Rasterizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\src\renderer\Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\ceury\Documents\GitHub\CPCL-Engine\CPCL Engine\Engine\src\renderer\Z_buffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -16,12 +16,15 @@ public:
 template<typename T>
 class ComponentPool : public IPool
 {
+private:
+
 	static constexpr uint32_t NONE = UINT32_MAX;
 	std::vector<T> _components;
 	std::vector<Entity> _owners;
 	std::vector<uint32_t> _sparse;
 
 public: 
+
 	T& add(Entity e, T comp) {
 		if (e >= _sparse.size()) _sparse.resize(e + 1, NONE);
 		_sparse[e] = (uint32_t)_components.size();
@@ -39,9 +42,14 @@ public:
 	}
 
 	void remove(Entity e) override {
+
 		if (!has(e)) return;
 		uint32_t index = _sparse[e];
 		uint32_t lastIndex = (uint32_t)_components.size() - 1;
+
+
+		// swap and pop pour éviter les trou, prend le dernier index et le met a la place de celui qui est remove
+
 		if (index != lastIndex) {
 			_components[index] = std::move(_components[lastIndex]);
 			Entity lastOwner = _owners[lastIndex];
@@ -56,3 +64,5 @@ public:
 	const std::vector<Entity>& owners() const { return _owners; }
 
 };
+
+

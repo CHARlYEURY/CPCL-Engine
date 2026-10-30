@@ -4,11 +4,13 @@
 #include <memory>
 #include <vector>
 
+template <typename T>
 class Registry
 {
 private: 
 
 	Entity _nextEntity = 0;
+	std::vector<std::unique_ptr<IPool>> Ipools;
 
 public: 
 
@@ -16,6 +18,6 @@ public:
 	{
 		return _nextEntity++;
 	}
-
+	
 
 };
