@@ -4,7 +4,6 @@
 #include <utility>
 
 
-
 class IPool
 {
 public:
@@ -12,6 +11,7 @@ public:
 	virtual void remove(Entity entity) = 0;
 
 };
+
 
 template<typename T>
 class ComponentPool : public IPool

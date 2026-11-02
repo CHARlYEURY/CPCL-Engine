@@ -11,6 +11,12 @@
 #include "platform/Window.h"
 #include "particles/ParticleSystem.h"
 #include "particles/Emitter.h"
+#include "ECS/Registry.h"
+#include "ECS/components/Transform.h"
+#include "ECS/components/Spin.h"
+#include "ECS/components/MeshRenderer.h"
+#include "ECS/systems/RenderSystem.h"
+#include "ECS/systems/SpinSystem.h"
 #include <memory>
 
 
@@ -130,9 +136,12 @@ int main() {
 
 
 
+    Registry reg;
 
-
-
+	Entity e1 = reg.create();
+	reg.add<Transform>(e1);
+    reg.add<Spin>(e1);
+	reg.add<MeshRenderer>(e1, &mesh, &spotMat, &vertex_normals);
 
     /////////////////////// RUN /////////////////////
     bool running = true;
@@ -179,6 +188,9 @@ int main() {
 
 
         text_blit(helloText, renderer.framebuffer().Data(), WIDTH, HEIGHT, 10, 10);
+
+        //SpinSystem(reg, dt);
+        RenderSystem(reg, renderer, view, projection, light, half_vec);
 
         // --- Affichage ---
         window.Present(renderer.framebuffer());
