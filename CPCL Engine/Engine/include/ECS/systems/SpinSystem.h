@@ -1,9 +1,6 @@
 #pragma once
 #include "ECS/Registry.h"
+#include "ECS/components/Transform.h"
+#include "ECS/components/Spin.h"
 
-void SpinSystem(Registry& reg, float dt) {
-    reg.each<Transform, Spin>([&](Entity, Transform& t, Spin& s) {
-        t.rotX += s.speedX * dt;
-        t.rotY += s.speedY * dt;
-        });
-}
+void SpinSystem(Registry& reg, float dt);

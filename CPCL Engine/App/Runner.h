@@ -13,6 +13,14 @@
 #include "particles/ParticleSystem.h"
 #include "particles/Emitter.h"
 #include "camera/camera.h"
+#include "ECS/components/MeshRenderer.h"
+#include "ECS/components/Spin.h"
+#include "ECS/components/Transform.h"
+#include "ECS/Registry.h"
+#include "ECS/Entity.h"
+#include "ECS/ComponentPool.h"
+#include "ECS/systems/RenderSystem.h"
+#include "ECS/systems/SpinSystem.h"
 #include <memory>
 
 

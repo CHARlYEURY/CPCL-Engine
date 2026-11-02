@@ -59,6 +59,21 @@ void RunApp::run(int width, int height) {
     compute_vertex_normals(mesh2, _face_normals2, _vertex_normals2);
 
 
+
+	//////////////////// ECS ////////////////////////////
+	Registry reg;
+	Entity cow1 = reg.create();
+    reg.add<Transform>(cow1);
+    reg.add<Spin>(cow1);
+    reg.add<MeshRenderer>(cow1, &mesh, &spotMat, &_vertex_normals);
+
+    Entity cow2 = reg.create();
+    reg.add<Transform>(cow2);
+    //reg.add<Spin>(cow2);
+    reg.add<MeshRenderer>(cow2, &mesh2, &sandMat, &_vertex_normals2);
+    //////////////////// ECS ////////////////////////////
+ 
+
     ////////////////////// CAMERA ////////////////////////////
     Cam camera(_eye);
 
@@ -78,6 +93,12 @@ void RunApp::run(int width, int height) {
     particles.emitter.position = Maths::Vec3_SSE(0, -1.0f, 0);
     const float focal = height * 0.5f / tanf(fovY * 0.5f);
     Uint64 lastFrame = start;
+    ////////////////////// CAMERA ////////////////////////////
+
+
+
+
+
 
 
     /////////////////////// RUN /////////////////////
@@ -121,27 +142,37 @@ void RunApp::run(int width, int height) {
         if (isRightMouseButtonDown)
             camera.update(sim_dt);
         const auto view = camera.viewMatrix();
-        // Matrice modèle : se lit de droite à gauche → d'abord RotationX, puis RotationY
-        Maths::Matrix4x4_SSE model = Maths::Matrix4x4_SSE::RotationY(t * 0.8f) * Maths::Matrix4x4_SSE::RotationX(t * 0.5f);
-        Maths::Matrix4x4_SSE mvp = projection * (view * model);
 
-        Maths::Vec3_SSE pointMesh = Maths::Vec3_SSE(0, 0, 1);
-        Maths::Matrix4x4_SSE model2 = Maths::Matrix4x4_SSE::Translation(pointMesh);
-        Maths::Matrix4x4_SSE mvp2 = projection * (view * model2);
-        
-        _scene.clear();
-        _scene.push_back({ mesh, _vertex_normals, spotMat, model, mvp, _light, _half_vec });
-        _scene.push_back({ mesh2, _vertex_normals2, sandMat, model2, mvp2, _light, _half_vec });
-        
 
+		///////////////// AVANT ECS //////////////////////// à suppr si plus besoin 
+        //// Matrice modèle : se lit de droite à gauche → d'abord RotationX, puis RotationY
+        //Maths::Matrix4x4_SSE model = Maths::Matrix4x4_SSE::RotationY(t * 0.8f) * Maths::Matrix4x4_SSE::RotationX(t * 0.5f);
+        //Maths::Matrix4x4_SSE mvp = projection * (view * model);
+        //Maths::Vec3_SSE pointMesh = Maths::Vec3_SSE(0, 0, 1);
+        //Maths::Matrix4x4_SSE model2 = Maths::Matrix4x4_SSE::Translation(pointMesh);
+        //Maths::Matrix4x4_SSE mvp2 = projection * (view * model2);
+        //
+        //_scene.clear();
+        //_scene.push_back({ mesh, _vertex_normals, spotMat, model, mvp, _light, _half_vec });
+        //_scene.push_back({ mesh2, _vertex_normals2, sandMat, model2, mvp2, _light, _half_vec });
+        //
+        //renderer.begin_frame(...);       
+        //renderer.end_Frame();
+        //renderer.draw_particles(...);
+        //text_blit(...);
         // clipping near + projection + back-face culling + rasterisation (voir renderer/Renderer)
-        renderer.begin_frame(setRGB(16, 16, 24));
+     /*   renderer.begin_frame(setRGB(16, 16, 24));
         renderer.draw_scene(_scene, camera.position());
-        renderer.end_Frame();
-        renderer.draw_particles(particles, projection * view, focal);
+        renderer.end_Frame();*/
+        //renderer.draw_particles(particles, projection * view, focal);
+     
+        ///////////////// AVANT ECS //////////////////////// 
+
 
 
         text_blit(helloText, renderer.framebuffer().Data(), width, height, 10, 10);
+        SpinSystem(reg, sim_dt);
+        RenderSystem(reg, renderer, view, projection, _light, _half_vec, particles, focal);
 
         // --- Affichage ---
         window.Present(renderer.framebuffer());
