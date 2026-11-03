@@ -49,6 +49,9 @@ void RunApp::run(int width, int height) {
     printf("loaded spot.obj: %d vertices, %d faces\n",
         mesh2.vertCount(), mesh2.faceCount());;
 
+    Mesh terMesh;
+    generate_Terrain(terMesh);
+
     
     // Normales calculées UNE fois, en espace objet : le mesh est rigide, elles ne
     // changent pas. Seule la rotation du modèle les fera tourner (plus bas)
@@ -57,6 +60,14 @@ void RunApp::run(int width, int height) {
 
     compute_face_normals(mesh2, _face_normals2);
     compute_vertex_normals(mesh2, _face_normals2, _vertex_normals2);
+
+
+    std::vector<Maths::Vec3_SSE> face_normalsTest;
+    std::vector<Maths::Vec3_SSE> vertex_normalsTest;
+
+    compute_face_normals(terMesh, face_normalsTest);
+    compute_vertex_normals(terMesh, face_normalsTest, vertex_normalsTest);
+
 
 
 
@@ -71,6 +82,10 @@ void RunApp::run(int width, int height) {
     reg.add<Transform>(cow2);
     //reg.add<Spin>(cow2);
     reg.add<MeshRenderer>(cow2, &mesh2, &sandMat, &_vertex_normals2);
+
+    Entity ter = reg.create();
+    reg.add<Transform>(ter);
+    reg.add<MeshRenderer>(ter, &terMesh, &sandMat, &vertex_normalsTest);
     //////////////////// ECS ////////////////////////////
  
 

@@ -21,6 +21,7 @@
 #include "ECS/ComponentPool.h"
 #include "ECS/systems/RenderSystem.h"
 #include "ECS/systems/SpinSystem.h"
+#include "asset/Terrain.h"
 #include <memory>
 
 
