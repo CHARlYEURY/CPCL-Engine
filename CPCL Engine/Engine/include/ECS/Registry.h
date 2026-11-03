@@ -9,14 +9,14 @@ class Registry {
     std::vector<std::unique_ptr<IPool>> _pools;   
 
     static size_t nextTypeId() { static size_t id = 0; return id++; }
-    template <typename T> static size_t typeId() { static size_t id = nextTypeId(); return id; }
+    template <typename T> static size_t typeId() { static size_t id = nextTypeId(); return id; } // garrantie le bon type 
 
     template <typename T>
-    ComponentPool<T>& pool() {
-        size_t id = typeId<T>();
-        if (id >= _pools.size()) _pools.resize(id + 1);
-        if (!_pools[id]) _pools[id] = std::make_unique<ComponentPool<T>>();
-        return static_cast<ComponentPool<T>&>(*_pools[id]);
+    ComponentPool<T>& pool() { // independant a chaque type de comp 
+        size_t id = typeId<T>(); // l'id du type 
+        if (id >= _pools.size()) _pools.resize(id + 1); // agrandie si pas la place ( si elle existe) 
+        if (!_pools[id]) _pools[id] = std::make_unique<ComponentPool<T>>(); // au premier appel du type on crée la pool 
+        return static_cast<ComponentPool<T>&>(*_pools[id]); // return la pool que l'on a crée pour le type, cast  pour passer du commun Ipoll au compPool T
     }
 
 public:
@@ -30,9 +30,9 @@ public:
     // Appelle fn(entity, A&, B&...) pour chaque entité qui a TOUS les composants
     template <typename A, typename... Rest, typename Fn>
     void each(Fn&& fn) {
-        auto& pa = pool<A>();
-        for (Entity e : pa.owners()) {             // on itère sur le pool de A
-            if ((pool<Rest>().has(e) && ...))      // et on vérifie les autres
+        auto& pa = pool<A>(); // pool du type A
+        for (Entity e : pa.owners()) {             // on itère sur le pool de A et on check qui a le transform
+            if ((pool<Rest>().has(e) && ...))      // et on vérifie les autres 
                 fn(e, pa.get(e), pool<Rest>().get(e)...);
         }
     }

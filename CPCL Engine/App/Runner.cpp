@@ -89,7 +89,7 @@ void RunApp::run(int width, int height) {
         SDL_Color{ 255, 255, 255, 255 });
 
 
-    ParticleSystem particles(10000);
+    ParticleSystem particles(0);
     particles.emitter.position = Maths::Vec3_SSE(0, -1.0f, 0);
     const float focal = height * 0.5f / tanf(fovY * 0.5f);
     Uint64 lastFrame = start;
