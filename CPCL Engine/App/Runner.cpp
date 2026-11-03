@@ -32,7 +32,7 @@ void RunApp::run(int width, int height) {
     if (!texture_load(FilePath("Assets/Materials", "Ground054_1K-JPG_Color.jpg"), *sandText)) {
         return;
     }
-    Materials sandMat("mat");
+    Materials sandMat("mat", sandText);
     sandMat.setDiffuse(setRGB(255, 255, 255, 128));
 
     auto cowTex = std::make_shared<Texture>();
