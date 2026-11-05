@@ -10,7 +10,7 @@ void RenderSystem(Registry& reg, Renderer& r,
     reg.each<Transform, MeshRenderer>([&](Entity, Transform& t, MeshRenderer& m) {
         auto model = Maths::Matrix4x4_SSE::RotationY(t.rotY) * Maths::Matrix4x4_SSE::RotationX(t.rotX);
         auto mvp = proj * (view * model);
-        drawItem item{ *m.mesh, *m.vertexNormals, *m.materials, model, mvp, light, half };
+        drawItem item{ *m.mesh, *m.vertexNormals, *m.materials, model, mvp, light, half }; // prevu pour draw_scene
         r.draw_mesh(item, true);
         });
     r.end_Frame();

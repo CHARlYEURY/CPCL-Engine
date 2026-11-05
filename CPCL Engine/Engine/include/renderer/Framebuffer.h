@@ -17,7 +17,6 @@ private:
 public:
 
 	FrameBuffer(int width, int height);
-	//FrameBuffer(int mul);
 
 	// Accès en écriture
 	uint32_t& operator[](size_t idx) { return pixels[idx]; }

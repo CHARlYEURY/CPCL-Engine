@@ -63,11 +63,11 @@ public:
 	// Ancienne ZBuffer::project_and_draw
 	void project_and_draw(const clip_vertex tri[3], const drawItem& item);
 
-	void draw_scene(const std::vector<drawItem>& scene, const Maths::Vec3_SSE& camera_pos);
+	void draw_scene(const std::vector<drawItem>& scene, const Maths::Vec3_SSE& camera_pos); //appele draw mesh en fonction de leur transparance
 };
 
 // Position de l'objet en espace monde (extrait de la matrice de modèle ou position centrale)
-	// Si ton objet est centré en (0,0,0) local, sa position monde est la colonne de translation de la matrice model :
+	// Si ton objet est centré en (0,0,0) local, sa position monde est la colonne de translation de la matrice moodel :
 inline Maths::Vec3_SSE get_position(const Maths::Matrix4x4_SSE& m) {
 	return Maths::Vec3_SSE(m.rows[3].m128_f32[0], m.rows[3].m128_f32[1], m.rows[3].m128_f32[2]);
 }

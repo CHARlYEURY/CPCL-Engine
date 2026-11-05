@@ -162,7 +162,7 @@ void Renderer::project_and_draw(const clip_vertex tri[3], const drawItem& item)
 void Renderer::draw_scene(const std::vector<drawItem>& scene,const Maths::Vec3_SSE& camera_pos)
 {
     for (const auto& items : scene) {
-        if (!items.mat.isTransparent())
+        if (!items.mat.isTransparent()) //from texture isTransparent
             draw_mesh(items);
     }
 
@@ -178,7 +178,7 @@ void Renderer::draw_scene(const std::vector<drawItem>& scene,const Maths::Vec3_S
             Maths::Vec3_SSE posA = get_position(a->model);
             Maths::Vec3_SSE posB = get_position(b->model);
 
-            // Distance au carré (pas besoin de racine carrée pour comparer)
+            // Distance                                    // recalcule à chaqe fois distA et distB pour determiner le plus loin avec true pur organiser l'ordre.
             float distA = posA.DistanceSquared(camera_pos);
             float distB = posB.DistanceSquared(camera_pos);
             
