@@ -106,7 +106,7 @@ void RunApp::run(int width, int height) {
 
     ParticleSystem particles(0);
     particles.emitter.position = Maths::Vec3_SSE(0, -1.0f, 0);
-    const float focal = height * 0.5f / tanf(fovY * 0.5f);
+    const float focal = height * 0.1 / tanf(fovY * 0.5f);
     Uint64 lastFrame = start;
     ////////////////////// CAMERA ////////////////////////////
 
