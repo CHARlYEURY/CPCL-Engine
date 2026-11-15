@@ -53,11 +53,10 @@ bool Materials::isTransparent() const
 //  sampleBaseColor : couleur de base du matériau au point
 //    - sans texture : juste la couleur diffuse
 //    - avec texture : la couleur du texel multipliée par la diffuse
-//  Sample au lieu de sampleBilinear à changer!!!
 uint32_t Materials::sampleBaseColor(float u, float v) const
 {
     if (!hasTexture())
         return _diffuse;
 
-    return Modulate(_texture->Sample(u, v), _diffuse);
+    return Modulate(_texture->SampleBilinear(u, v), _diffuse);
 }

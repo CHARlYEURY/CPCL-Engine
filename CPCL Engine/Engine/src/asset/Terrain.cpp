@@ -109,7 +109,7 @@ void generate_Terrain(Mesh& mesh) {
 		for (int x = 0; x < n_points; x++) {
 
 			float posX = -taille / 2 + x * step;
-			float posZ = +taille / 2 + z * step;
+			float posZ = -taille / 2 + z * step;
 
 			float posY = fBm(posX, posZ, 4);
 

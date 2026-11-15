@@ -186,9 +186,3 @@ uint32_t Texture::SampleBilinear(float u, float v) const
 
     return (channel(24) << 24) | (channel(16) << 16) | (channel(8) << 8) | channel(0);
 }
-
-// raccourci de SampleBilinear
-uint32_t texture_sample_bilinear(const Texture& tex, float u, float v)
-{
-    return tex.SampleBilinear(u, v);
-}

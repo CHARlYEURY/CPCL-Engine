@@ -70,6 +70,7 @@ private:
 	std::vector<std::vector<int>> _bins;   // un bin par tuile : indices dans _tris
 	int _tilesX, _tilesY;                  // nombre de tuiles en largeur / hauteur
 	static constexpr int TILE = 64;        // taille d'une tuile en pixels (64x64)
+	int _culled = 0;
 
 public:
 	// width/height = taille du framebuffer ET du zbuffer (en pixels, pas la taille de la fenetre)
@@ -107,11 +108,13 @@ public:
 	// Ancienne ZBuffer::project_and_draw
 	// prend un triangle deja clippé (en clip space), le projette a l'ecran,
 	// fait le back-face culling et l'ajoute a _tris. appelé par draw_mesh
-	void project_and_draw(const clip_vertex tri[3], const drawItem& item);
+	void project_and_draw(const clip_vertex tri[3], const drawItem& item, bool writeDepth);
 
 	// version "scene complete" : opaques d'abord, puis transparents triés du plus loin au plus proche
 	// camera_pos sert pour le tri des transparents
 	void draw_scene(const std::vector<drawItem>& scene, const Maths::Vec3_SSE& camera_pos);
+
+	int culled() const { return _culled; }
 };
 
 // Position de l'objet en espace monde (extrait de la matrice de modèle ou position centrale)
@@ -122,3 +125,4 @@ public:
 inline Maths::Vec3_SSE get_position(const Maths::Matrix4x4_SSE& m) {
 	return Maths::Vec3_SSE(m.rows[3].m128_f32[0], m.rows[3].m128_f32[1], m.rows[3].m128_f32[2]);
 }
+

@@ -25,4 +25,4 @@
 // focal = focale en pixels, sert a la taille des particules
 void RenderSystem(Registry& reg, Renderer& r,
     const Maths::Matrix4x4_SSE& view, const Maths::Matrix4x4_SSE& proj,
-    const Maths::Vec3_SSE& light, const Maths::Vec3_SSE& half, const ParticleSystem& ps, float focal);
+    const Maths::Vec3_SSE& light, const Maths::Vec3_SSE& half, const ParticleSystem& ps, float focal, const Maths::Vec3_SSE& camera_pos);

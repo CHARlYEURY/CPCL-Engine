@@ -32,6 +32,7 @@ static uint32_t lerp_color(uint32_t a, uint32_t b, float t)
 // ------------------------------------------------------------
 void Renderer::begin_frame(uint32_t clear_color)
 {
+    _culled = 0;
     _fb.Clear(clear_color);        // l'image est remplie avec la couleur de fond
     _zb.clear_Zbuffer();           // profondeur remise à « infini »
     _tris.clear();                 // on oublie les triangles de la frame d'avant (la memoire du vector est gardée, pas de realloc)
@@ -98,7 +99,7 @@ void Renderer::end_Frame()
             // on dessine dans l'ordre tous les triangles de cette tuile (l'ordre d'insertion est gardé)
             // true = on ecrit dans le zbuffer
             for (int i : _bins[t]) {
-                _rtz.draw_triangle_phong(_tris[i], r, true);
+                _rtz.draw_triangle_phong(_tris[i], r, _tris[i].writeDepth);
             }
         }
     };
@@ -204,7 +205,7 @@ void Renderer::draw_mesh(const drawItem& item, bool writeDepth)
 
         // n_tris = 0 -> triangle completement derriere la camera, la boucle ne tourne pas
         for (int i = 0; i < n_tris; i++) {
-            project_and_draw(&out[i * 3], item);
+            project_and_draw(&out[i * 3], item, writeDepth);
         }
     }
 }
@@ -217,7 +218,7 @@ void Renderer::draw_mesh(const drawItem& item, bool writeDepth)
 //    3) range le resultat dans un ScreenTri pousé dans _tris
 //  appelé par draw_mesh pour chaque triangle sorti du clipping
 // ------------------------------------------------------------
-void Renderer::project_and_draw(const clip_vertex tri[3], const drawItem& item)
+void Renderer::project_and_draw(const clip_vertex tri[3], const drawItem& item, bool writeDepth)
 {
 
     const int W = _fb.getWidth();
@@ -237,7 +238,7 @@ void Renderer::project_and_draw(const clip_vertex tri[3], const drawItem& item)
 
     // back-face culling : l'aire signée du triangle en pixels donne son sens de rotation.
     // avec le y inversé, une face visible a une aire négative, donc >= 0 = de dos (ou plat) -> on jette
-    if (_rtz.edge(sx[0], sy[0], sx[1], sy[1], sx[2], sy[2]) >= 0) return;   // back-face cull
+    if (_rtz.edge(sx[0], sy[0], sx[1], sy[1], sx[2], sy[2]) >= 0) { _culled++; return; };   // back-face cull
 
     // on recopie tout dans un ScreenTri, format que comprend le rasterizer
     ScreenTri s;
@@ -249,7 +250,8 @@ void Renderer::project_and_draw(const clip_vertex tri[3], const drawItem& item)
     }
     // infos communes aux 3 sommets : materiau (pointeur, l'objet doit rester vivant jusqu'a end_Frame),
     // direction de lumiere et half vector (copiés)
-    s.mat = &item.mat;  s.L = item.light;  s.H = item.half_vec;
+    s.mat = &item.mat;  s.L = item.light;  
+    s.H = item.half_vec; s.writeDepth = writeDepth;
     _tris.push_back(s);     // sera dessiné plus tard dans end_Frame
 }
 

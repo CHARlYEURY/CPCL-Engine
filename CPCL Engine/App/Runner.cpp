@@ -51,6 +51,10 @@ void RunApp::run(int width, int height) {
 
     Mesh terMesh;
     generate_Terrain(terMesh);
+    printf("loaded terrain: %d vertices, %d faces\n",
+        terMesh.vertCount(), terMesh.faceCount());
+    
+    
 
     
     // Normales calculées UNE fois, en espace objet : le mesh est rigide, elles ne
@@ -79,12 +83,11 @@ void RunApp::run(int width, int height) {
     reg.add<MeshRenderer>(cow1, &mesh, &spotMat, &_vertex_normals);
 
     Entity cow2 = reg.create();
-    reg.add<Transform>(cow2);
-    //reg.add<Spin>(cow2);
+    reg.add<Transform>(cow2, Maths::Vec3_SSE(0.0f, 0.0f, 1.0f));
     reg.add<MeshRenderer>(cow2, &mesh2, &sandMat, &_vertex_normals2);
 
     Entity ter = reg.create();
-    reg.add<Transform>(ter);
+    reg.add<Transform>(ter, Maths::Vec3_SSE(0.0f, 0.0f, 10.0f));
     reg.add<MeshRenderer>(ter, &terMesh, &sandMat, &vertex_normalsTest);
     //////////////////// ECS ////////////////////////////
  
@@ -104,7 +107,7 @@ void RunApp::run(int width, int height) {
         SDL_Color{ 255, 255, 255, 255 });
 
 
-    ParticleSystem particles(0);
+    ParticleSystem particles;
     particles.emitter.position = Maths::Vec3_SSE(0, -1.0f, 0);
     const float focal = height * 0.1 / tanf(fovY * 0.5f);
     Uint64 lastFrame = start;
@@ -184,16 +187,15 @@ void RunApp::run(int width, int height) {
         ///////////////// AVANT ECS //////////////////////// 
 
 
-
-        text_blit(helloText, renderer.framebuffer().Data(), width, height, 10, 10);
         SpinSystem(reg, sim_dt);
-        RenderSystem(reg, renderer, view, projection, _light, _half_vec, particles, focal);
+        RenderSystem(reg, renderer, view, projection, _light, _half_vec, particles, focal, camera.position());
+        text_blit(helloText, renderer.framebuffer().Data(), width, height, 10, 10);   // APRÈS le rendu
 
         // --- Affichage ---
         window.Present(renderer.framebuffer());
 
         // ---- Update the FPS counter ----
-        int culled = 0;
+        int culled = renderer.culled();
         Uint64 now = SDL_GetPerformanceCounter();
         double dt = (double)(now - last) / (double)freq;
         last = now;
@@ -204,7 +206,7 @@ void RunApp::run(int width, int height) {
             double ms = 1000.0 * fps_accum / (double)fps_count;
             snprintf(title, sizeof title,
                 "Chapter 08 — Backface culling  |  culled %d of %d  |  %.1f FPS  (%.2f ms) | %d particles ",
-                culled, mesh.faceCount(), fps, ms, particles.particles.size());
+                culled, mesh.faceCount() + mesh2.faceCount() + terMesh.faceCount(), fps, ms, particles.particles.size());
             window.SetTitle(title);
             fps_accum = 0.0;
             fps_count = 0;

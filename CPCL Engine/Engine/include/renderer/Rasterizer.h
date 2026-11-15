@@ -35,7 +35,8 @@ struct ScreenTri {
 	Maths::UV uv[3];              // coordonnées de texture de chaque sommet
 	Maths::Vec3_SSE n[3];         // normale de chaque sommet, deja en espace monde
 	const Materials* mat;         // materiau du triangle (pointeur : il appartient pas au ScreenTri)
-	Maths::Vec3_SSE L, H;         // L = direction de la lumiere, H = half vector (identiques pour les 3 sommets)
+	Maths::Vec3_SSE L, H;		  // L = direction de la lumiere, H = half vector (identiques pour les 3 sommets)
+	bool writeDepth = true;
 };
 
 class Rasterizer

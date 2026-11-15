@@ -107,7 +107,7 @@ void Rasterizer::draw_triangle_phong(const ScreenTri& tri, const TileRect& r, bo
     Maths::Vec3_SSE n0 = tri.n[0], n1 = tri.n[1], n2 = tri.n[2];
 
     // attention : ici c'est une COPIE du materiau (pas une reference)
-    Materials mat = *tri.mat;
+    const Materials& mat = *tri.mat;
 
     // dimensions du zbuffer (c'étaient les membres Widths / Heights de ZBuffer)
     const int Widths = _mZBuffer.getWidth();
@@ -133,12 +133,17 @@ void Rasterizer::draw_triangle_phong(const ScreenTri& tri, const TileRect& r, bo
 
     // a partir d'ici un pixel est dasn le triangle si ses 3 edge functions sont >= 0
 
-    // 3) bounding box du triangle, clampée à l'écran
+    // 3) bounding box du triangle, clampée à la TUILE (et plus à l'écran)
     // (min / max des 3 coordonnées a la main avec des ternaires, puis clampi pour rester dans l'image)
-    int minx = clampi(x0 < x1 ? (x0 < x2 ? x0 : x2) : (x1 < x2 ? x1 : x2), 0, Widths - 1);
-    int miny = clampi(y0 < y1 ? (y0 < y2 ? y0 : y2) : (y1 < y2 ? y1 : y2), 0, Heights - 1);
-    int maxx = clampi(x0 > x1 ? (x0 > x2 ? x0 : x2) : (x1 > x2 ? x1 : x2), 0, Widths - 1);
-    int maxy = clampi(y0 > y1 ? (y0 > y2 ? y0 : y2) : (y1 > y2 ? y1 : y2), 0, Heights - 1);
+    //int minx = clampi(x0 < x1 ? (x0 < x2 ? x0 : x2) : (x1 < x2 ? x1 : x2), 0, Widths - 1);
+    //int miny = clampi(y0 < y1 ? (y0 < y2 ? y0 : y2) : (y1 < y2 ? y1 : y2), 0, Heights - 1);
+    //int maxx = clampi(x0 > x1 ? (x0 > x2 ? x0 : x2) : (x1 > x2 ? x1 : x2), 0, Widths - 1);
+    //int maxy = clampi(y0 > y1 ? (y0 > y2 ? y0 : y2) : (y1 > y2 ? y1 : y2), 0, Heights - 1);
+
+    int minx = clampi(x0 < x1 ? (x0 < x2 ? x0 : x2) : (x1 < x2 ? x1 : x2), r.x0, r.x1 - 1);
+    int miny = clampi(y0 < y1 ? (y0 < y2 ? y0 : y2) : (y1 < y2 ? y1 : y2), r.y0, r.y1 - 1);
+    int maxx = clampi(x0 > x1 ? (x0 > x2 ? x0 : x2) : (x1 > x2 ? x1 : x2), r.x0, r.x1 - 1);
+    int maxy = clampi(y0 > y1 ? (y0 > y2 ? y0 : y2) : (y1 > y2 ? y1 : y2), r.y0, r.y1 - 1);
 
     float inv_area = 1.0f / (float)area;        // division par triangle (on la fait une seule fois, apres on multiplie)
 
@@ -181,6 +186,7 @@ void Rasterizer::draw_triangle_phong(const ScreenTri& tri, const TileRect& r, bo
             float z = l0 * z0 + l1 * z1 + l2 * z2;
 
             int idx = y * Widths + x;     // position du pixel dans les tableaux 1d (framebuffer et zbuffer)
+            if (z >= _mZBuffer[idx]) continue;
 
             // 1/w interpolé, puis on l'inverse pour retrouver w (sert a "defaire" la division par w de plus haut)
             float iw = l0 * iw0 + l1 * iw1 + l2 * iw2;
@@ -220,9 +226,6 @@ void Rasterizer::draw_triangle_phong(const ScreenTri& tri, const TileRect& r, bo
             uint8_t alpha = (texel >> 24) & 0xFF;
             // couleur finale du pixel eclairé : texel * diffus + blanc * speculaire
             uint32_t srcColor = color_phong(texel, diffuse_k, specular);
-
-            // z-test : plus petit = plus proche de la camera
-            if (z >= _mZBuffer[idx]) continue;   // un pixel plus proche est déjà là
 
             // pour les transparents writeDepth devrait etre false : ils cachent pas ce qu'il y a derriere
             if (writeDepth)
